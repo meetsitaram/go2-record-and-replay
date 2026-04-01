@@ -3,6 +3,10 @@
 Record and replay teleoperation data for the **Unitree Go2 Air** quadruped robot,
 stored natively in [LeRobot v3.0](https://huggingface.co/docs/lerobot/lerobot-dataset-v3) dataset format.
 
+<p align="center">
+  <img src="assets/episode_visual.png" alt="Visualized episode" width="600">
+</p>
+
 ## Go2 Air limitations
 
 The Go2 Air does **not** support Unitree's secondary development SDK (EDU-only).
