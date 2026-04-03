@@ -12,8 +12,8 @@ import time
 
 import numpy as np
 
-from .connection import Go2Connection
-from .constants import SEND_RATE
+from go2_driver.connection import Go2Connection
+from go2_driver.constants import SEND_RATE
 
 
 async def _async_send(conn, msg: str):

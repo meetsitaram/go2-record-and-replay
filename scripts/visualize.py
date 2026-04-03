@@ -22,7 +22,7 @@ import numpy as np
 import pyarrow as pa
 import pyarrow.parquet as pq
 
-from go2_recorder.constants import JOINT_NAMES, BUTTON_ACTIONS
+from go2_driver.constants import JOINT_NAMES, BUTTON_ACTIONS
 
 
 # ── Colors (BGR) ─────────────────────────────────────────────────────────────

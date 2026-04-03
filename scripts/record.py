@@ -24,15 +24,14 @@ import threading
 
 import numpy as np
 
-from go2_recorder.constants import (
-    KEY_F1, SEND_RATE, DATASET_FPS,
-)
-from go2_recorder.connection import Go2Connection
-from go2_recorder.gamepad import (
+from go2_driver.constants import KEY_F1, SEND_RATE
+from go2_driver.connection import Go2Connection
+from go2_driver.gamepad import (
     ControllerState, SafetyFilter, RumbleHelper,
     find_gamepad, validate_gamepad, check_device_permissions, gamepad_loop,
 )
-from go2_recorder.streams import RobotStreams
+from go2_driver.streams import RobotStreams
+from go2_recorder.constants import DATASET_FPS
 from go2_recorder.recorder import EpisodeRecorder
 
 

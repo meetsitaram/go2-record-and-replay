@@ -11,7 +11,7 @@ Usage:
 import argparse
 import sys
 
-from go2_recorder.connection import Go2Connection
+from go2_driver.connection import Go2Connection
 from go2_recorder.replayer import load_episode_actions, replay_episode
 
 

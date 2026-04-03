@@ -4,11 +4,9 @@ version = "0.1.0"
 description = "Record and replay teleoperation data for the Unitree Go2 in LeRobot v3.0 format"
 requires-python = ">=3.12"
 dependencies = [
+    "go2-driver",
     "lerobot",
-    "unitree_webrtc_connect",
-    "evdev",
     "numpy",
-    "opencv-python",
 ]
 
 [project.optional-dependencies]
