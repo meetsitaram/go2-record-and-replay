@@ -26,8 +26,8 @@ import numpy as np
 import pandas as pd
 import yaml
 
-from unitree_webrtc_connect.webrtc_driver import UnitreeWebRTCConnection, WebRTCConnectionMethod
 from unitree_webrtc_connect.constants import RTC_TOPIC, SPORT_CMD
+from go2_driver.connection import Go2Connection
 from go2_driver.gamepad import (
     ControllerState, find_gamepad, validate_gamepad, gamepad_loop
 )
@@ -72,6 +72,7 @@ class RobotPlayer:
         self.buttons = buttons
         self.start_posture = start_posture
         self.num_frames = len(actions)
+        self._go2 = Go2Connection("sta", ip, aes_key=aes_key)
         self.conn = None
         self.frame_index = 0
         self.manual_override = False
@@ -83,13 +84,8 @@ class RobotPlayer:
         self._last_r2_frame = None
 
     async def connect(self):
-        kwargs = {"ip": self.ip}
-        if self.aes_key:
-            kwargs["aes_128_key"] = self.aes_key
-
         print(f"  [{self.name}] Connecting to {self.ip}...")
-        self.conn = UnitreeWebRTCConnection(WebRTCConnectionMethod.LocalSTA, **kwargs)
-        await asyncio.wait_for(self.conn.connect(), timeout=15)
+        self.conn = await self._go2.async_connect()
         self.connected = True
         print(f"  [{self.name}] Connected!")
 
@@ -162,8 +158,7 @@ class RobotPlayer:
             pass
 
     async def disconnect(self):
-        if self.conn:
-            await self.conn.disconnect()
+        await self._go2.async_disconnect()
 
 
 def load_show_config(path: str) -> dict:
@@ -257,22 +252,6 @@ async def run_show(config: dict, no_music: bool = False, audio_head_start: float
             print(f"\n  Gamepad warnings: {warnings}")
     else:
         print("\n  No gamepad found — takeover disabled")
-
-    # Keepalive for all robots
-    ka_stop = asyncio.Event()
-
-    async def keepalive_all():
-        while not ka_stop.is_set():
-            for p in connected_players:
-                try:
-                    p.conn.datachannel.pub_sub.publish_without_callback(
-                        topic="rt/lf/sportmodestate", msg_type="sub"
-                    )
-                except Exception:
-                    pass
-            await asyncio.sleep(2)
-
-    ka_task = asyncio.create_task(keepalive_all())
 
     # Print controls
     print("\n" + "=" * 60)

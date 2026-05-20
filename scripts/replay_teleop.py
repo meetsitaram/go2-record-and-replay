@@ -22,8 +22,8 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 
-from unitree_webrtc_connect.webrtc_driver import UnitreeWebRTCConnection, WebRTCConnectionMethod
 from unitree_webrtc_connect.constants import RTC_TOPIC, SPORT_CMD
+from go2_driver.connection import Go2Connection
 
 DATASET_PATH = Path("data/go2-teleop-v1/data/chunk-000")
 SONG_PATH = Path("../assets/Dog-song.m4a")
@@ -283,33 +283,15 @@ async def main():
     print(f"Recording started in {start_posture} posture (height={start_height:.3f}m)")
 
     # Connect
-    kwargs = {"ip": args.ip}
-    if args.aes_key:
-        kwargs["aes_128_key"] = args.aes_key
-
+    go2 = Go2Connection("sta", args.ip, aes_key=args.aes_key)
     print(f"Connecting to {args.ip}...")
-    conn = UnitreeWebRTCConnection(WebRTCConnectionMethod.LocalSTA, **kwargs)
-    await asyncio.wait_for(conn.connect(), timeout=15)
+    conn = await go2.async_connect()
     print("Connected!")
 
     # State tracking for position hold
     state = RobotState()
     conn.datachannel.pub_sub.subscribe("rt/lf/sportmodestate", state.on_message)
 
-    # Keepalive
-    stop_ka = asyncio.Event()
-
-    async def keepalive():
-        while not stop_ka.is_set():
-            try:
-                conn.datachannel.pub_sub.publish_without_callback(
-                    topic="rt/lf/sportmodestate", msg_type="sub"
-                )
-            except Exception:
-                pass
-            await asyncio.sleep(2)
-
-    ka_task = asyncio.create_task(keepalive())
     await asyncio.sleep(1)  # let state populate
 
     await replay_with_music(conn, actions, buttons, state,
@@ -319,9 +301,7 @@ async def main():
                             position_hold=not args.no_hold,
                             start_posture=start_posture)
 
-    stop_ka.set()
-    ka_task.cancel()
-    await conn.disconnect()
+    await go2.async_disconnect()
 
 
 if __name__ == "__main__":
