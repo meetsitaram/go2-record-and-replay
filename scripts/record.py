@@ -33,6 +33,7 @@ from go2_driver.gamepad import (
 from go2_driver.streams import RobotStreams
 from go2_recorder.constants import DATASET_FPS
 from go2_recorder.recorder import EpisodeRecorder
+import go2_recorder.safety  # noqa: F401  (extends BLOCKED_COMBOS on import)
 
 
 def parse_args() -> argparse.Namespace:
@@ -40,12 +41,17 @@ def parse_args() -> argparse.Namespace:
     p.add_argument("--mode", choices=["ap", "sta", "lan"], default="ap",
                    help="Connection mode (ap=hotspot, sta=same router, lan=ethernet)")
     p.add_argument("--ip", default=None, help="Go2 IP address (required for sta mode)")
+    p.add_argument("--aes-key", default=None, help="AES-128 key for newer firmware (data2=3)")
     p.add_argument("--dry-run", action="store_true",
                    help="Run gamepad without connecting to robot or recording")
     p.add_argument("--allow-all", action="store_true",
                    help="Allow dangerous button combos (with countdown)")
+    p.add_argument("--no-countdown", action="store_true",
+                   help="Skip the hold-to-confirm countdown (use with --allow-all)")
     p.add_argument("--speed-limit", type=float, default=0.5, metavar="0.0-1.0",
                    help="Cap joystick output (default: 0.5 = half speed)")
+    p.add_argument("--auto-record", action="store_true",
+                   help="Start recording immediately without waiting for F1")
 
     p.add_argument("--repo-id", default="go2-teleop",
                    help="LeRobot dataset repo ID (default: go2-teleop)")
@@ -55,13 +61,20 @@ def parse_args() -> argparse.Namespace:
                    help="Task description for episodes")
     p.add_argument("--num-episodes", type=int, default=0,
                    help="Stop after N episodes (0 = unlimited)")
-    p.add_argument("--no-camera", action="store_true", help="Skip camera recording")
+    p.add_argument("--no-camera", action="store_true", default=True,
+                   help="Skip camera recording (default: camera off)")
+    p.add_argument("--with-camera", action="store_true",
+                   help="Enable camera recording (overrides default no-camera)")
     p.add_argument("--no-lidar", action="store_true", help="Skip lidar pose recording")
     p.add_argument("--push-to-hub", action="store_true",
                    help="Push dataset to HF Hub after recording")
+    p.add_argument("--wait-for-gamepad", type=int, default=-1, metavar="SECONDS",
+                   help="Wait for gamepad to connect (0 = forever, -1 = no wait [default])")
 
     args = p.parse_args()
     args.speed_limit = max(0.0, min(1.0, args.speed_limit))
+    if args.with_camera:
+        args.no_camera = False
     return args
 
 
@@ -78,10 +91,17 @@ def send_and_record_loop(
     20 Hz loop: read controller, apply safety, send to robot, record frame.
     Runs in a dedicated thread.
     """
+    from go2_driver.constants import BUTTON_ACTIONS
+
     sent = 0
-    recording = False
+    recording = args.auto_record
     was_f1 = False
     episodes_done = 0
+    last_action = ""
+
+    if recording:
+        sys.stdout.write("\n  [REC] Auto-recording enabled\n")
+        sys.stdout.flush()
 
     use_camera = not args.no_camera and not args.dry_run
     use_lidar = not args.no_lidar and not args.dry_run
@@ -92,6 +112,18 @@ def send_and_record_loop(
         # Read and filter controller state
         raw = state.to_dict()
         filtered = safety.apply(raw)
+
+        # Log button actions persistently
+        keys = filtered["keys"]
+        current_action = ""
+        for combo_mask, action in BUTTON_ACTIONS:
+            if (keys & combo_mask) == combo_mask:
+                current_action = action
+                break
+        if current_action and current_action != last_action:
+            sys.stdout.write(f"\n  [ACTION] {current_action}\n")
+            sys.stdout.flush()
+        last_action = current_action
 
         # F1 toggles recording
         f1_pressed = bool(filtered["keys"] & KEY_F1)
@@ -172,12 +204,31 @@ def main():
 
     # ── Gamepad ──────────────────────────────────────────────
     try:
-        import evdev
+        import evdev  # noqa: F401
     except ImportError:
         print("  ERROR: 'evdev' not installed. Run: uv pip install evdev")
         sys.exit(1)
 
     device = find_gamepad()
+
+    if not device and args.wait_for_gamepad >= 0:
+        wait_forever = args.wait_for_gamepad == 0
+        deadline = None if wait_forever else time.monotonic() + args.wait_for_gamepad
+        label = "indefinitely" if wait_forever else f"up to {args.wait_for_gamepad}s"
+        print(f"  Waiting for gamepad ({label})...")
+
+        while device is None:
+            if deadline is not None and time.monotonic() >= deadline:
+                break
+            time.sleep(5)
+            device = find_gamepad()
+            if device is None:
+                if deadline is not None:
+                    remaining = max(0, int(deadline - time.monotonic()))
+                    print(f"  Still waiting for gamepad... ({remaining}s remaining)")
+                else:
+                    print("  Still waiting for gamepad...")
+
     if not device:
         perms = check_device_permissions()
         if perms and not perms["in_input_group"]:
@@ -210,7 +261,7 @@ def main():
             print("  ERROR: unitree_webrtc_connect not installed.")
             sys.exit(1)
 
-        conn_wrapper = Go2Connection(args.mode, args.ip)
+        conn_wrapper = Go2Connection(args.mode, args.ip, aes_key=args.aes_key)
         try:
             conn_wrapper.connect()
         except ConnectionError as e:
@@ -248,17 +299,21 @@ def main():
         conn=conn_wrapper.conn if conn_wrapper else None,
         loop=conn_wrapper.loop if conn_wrapper else None,
         dry_run=args.dry_run,
+        no_countdown=args.no_countdown,
     )
 
     # ── Print controls ───────────────────────────────────────
     print()
     print("  Controls:")
-    print("    Left stick   -> walk / strafe")
-    print("    Right stick  -> yaw / look")
-    print("    Start        -> walking mode")
-    print("    Select       -> standing mode")
-    print("    F1 (L-click) -> toggle recording")
-    print("    Ctrl+C       -> stop and save")
+    print("    Left stick        -> walk / strafe")
+    print("    Right stick       -> yaw / look")
+    print("    Start (Menu)      -> walking mode (enable movement)")
+    print("    Select (View)     -> standing mode (stop)")
+    print("    LT + A            -> crouch / stand toggle")
+    print("    LT + X            -> stand up from fall")
+    print("    RB + B            -> sit down")
+    print("    F1 (L-stick click)-> toggle recording")
+    print("    Ctrl+C            -> stop and save")
     if args.speed_limit < 1.0:
         print(f"  Speed limit: {args.speed_limit:.0%}")
     if not args.dry_run:

@@ -5,8 +5,10 @@ description = "Record and replay teleoperation data for the Unitree Go2 in LeRob
 requires-python = ">=3.12"
 dependencies = [
     "go2-driver",
+    "evdev",
     "lerobot",
     "numpy",
+    "pyyaml",
 ]
 
 [project.optional-dependencies]
@@ -24,6 +26,7 @@ name = "jetson-cu130"
 url = "https://pypi.jetson-ai-lab.io/sbsa/cu130/+simple/"
 
 [tool.uv.sources]
+go2-driver = { path = "../go2-driver", editable = true }
 torch = { index = "jetson-cu130" }
 torchaudio = { index = "jetson-cu130" }
 torchvision = { index = "jetson-cu130" }

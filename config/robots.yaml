@@ -1,0 +1,13 @@
+posture:
+  standing_height_min: 0.28
+  crouched_height_max: 0.12
+
+robots:
+  - name: go2_55149_air1
+    ip: 192.168.1.133
+  - name: go2_50905_pro1
+    ip: 192.168.1.246
+    aes_key: 2c09e23856fa423ed680313dd939a3f0
+  - name: go2_50224_pro2
+    ip: 192.168.1.248
+    aes_key: 8c95a9d3b98fbb6d00860fbe61404cce

@@ -1,10 +1,10 @@
 # go2-record-and-replay
 
-Record and replay teleoperation data for the **Unitree Go2 Air** quadruped robot,
+Record and replay teleoperation data for the **Unitree Go2** (Air & Pro) quadruped robot,
 stored natively in [LeRobot v3.0](https://huggingface.co/docs/lerobot/lerobot-dataset-v3) dataset format.
 
 <p align="center">
-  <img src="assets/episode_visual.png" alt="Visualized episode" width="600">
+  <i>(screenshot removed — see cheatsheet.md for controller reference)</i>
 </p>
 
 ## Go2 Air limitations
@@ -30,7 +30,12 @@ rate lowstate data and the freshness flag would be 1.0 on nearly every frame.
 - **Record**: Teleoperate the Go2 with an Xbox controller while simultaneously
   capturing all accessible data streams (controls, robot state, camera, LiDAR
   pose, motor joints) into a LeRobot dataset at 20 Hz.
-- **Replay**: Send recorded actions back to the robot at original timing.
+- **Replay**: Send recorded actions back to the robot at original timing, with
+  optional music sync and closed-loop position hold during balancing modes.
+- **Multi-robot choreography**: Replay episodes on multiple robots simultaneously
+  with D-pad controller takeover for live repositioning during shows.
+- **Pro/Air compatibility**: Automatically substitutes Pro-only moves (Handstand,
+  Erect) with Air-compatible alternatives during multi-robot playback.
 - **Train**: Datasets are directly usable with LeRobot-compatible training
   pipelines (ACT, Diffusion Policy, pi0, etc.) and can be pushed to HF Hub.
 
@@ -140,6 +145,87 @@ Sends recorded actions back to the robot at the original 20 Hz timing.
 .venv/bin/python scripts/replay.py --dataset ./data/go2-teleop --episode 0 --speed 0.5
 ```
 
+### Multi-robot replay
+
+Replay the same episode simultaneously on multiple robots. Robots are defined
+in a YAML config file. Before replay starts, each robot is commanded to stand
+and the body height is verified.
+
+```bash
+# Replay on all robots in config
+.venv/bin/python scripts/replay_multi.py --dataset ./data/go2-teleop --episode 0
+
+# Custom config file
+.venv/bin/python scripts/replay_multi.py --dataset ./data/go2-teleop --episode 0 \
+    --config config/robots.yaml
+
+# Single robot override (no config needed)
+.venv/bin/python scripts/replay_multi.py --dataset ./data/go2-teleop --episode 0 \
+    --ip 192.168.1.133
+
+# Half speed, skip posture check
+.venv/bin/python scripts/replay_multi.py --dataset ./data/go2-teleop --episode 0 \
+    --speed 0.5 --skip-posture-check
+
+# Dry run
+.venv/bin/python scripts/replay_multi.py --dataset ./data/go2-teleop --episode 0 --dry-run
+```
+
+**Config file** (`config/robots.yaml`):
+
+```yaml
+posture:
+  standing_height_min: 0.28   # body height threshold to confirm standing (m)
+  crouched_height_max: 0.12   # body height threshold to confirm crouched (m)
+
+robots:
+  - name: go2_55149_air1
+    ip: 192.168.1.133
+  - name: go2_50905_pro1
+    ip: 192.168.1.246
+    aes_key: 2c09e23856fa423ed680313dd939a3f0  # required for newer firmware
+```
+
+**Flags:**
+- `--skip-posture-check` — skip the StandUp verification before replay
+- `--posture-timeout <seconds>` — max wait for posture confirmation (default: 8)
+- `--speed <multiplier>` — playback speed (0.5 = half speed, 2.0 = double)
+
+## Robot encryption key setup
+
+Go2 robots with firmware >= 1.1.15 use per-device AES-128 encryption for the
+LAN WebRTC handshake. You must fetch your robot's key from the Unitree cloud
+(one-time step).
+
+### Fetch your AES key
+
+Requires `unitree-webrtc-connect >= 2.1.0` (already included as a dependency):
+
+```bash
+# Interactive (prompts for password)
+.venv/bin/unitree-fetch-aes-key --email YOUR_EMAIL --device-type Go2
+
+# Non-interactive
+.venv/bin/unitree-fetch-aes-key --email YOUR_EMAIL --password YOUR_PASSWORD --device-type Go2
+
+# Get key for a specific robot serial number
+.venv/bin/unitree-fetch-aes-key --email YOUR_EMAIL --device-type Go2 --sn B42D2000XXXXXXXX -q
+```
+
+This uses the same credentials as the Unitree Go mobile app. The output shows
+all robots bound to your account with their serial numbers and AES keys.
+
+### How to tell if your robot needs a key
+
+If connection fails with:
+```
+AesKeyRequiredError: This robot speaks data2=3 — the per-device AES-128 key is required
+```
+
+Then add the `aes_key` field to your robot entry in `config/robots.yaml`.
+
+Robots with older firmware (data2 <= 2) do not need a key and will connect without one.
+
 ### Inspect dataset
 
 ```bash
@@ -152,5 +238,73 @@ Sends recorded actions back to the robot at the original 20 Hz timing.
 All safety rules from the Go2 Xbox controller are preserved:
 - Dangerous combos (Damp, Jump, Pounce) are blocked by default
 - `--allow-all` enables them with a 3-vibration countdown
+- `--allow-all --no-countdown` fires them instantly (no hold required)
 - Emergency stop: hold LB+LT+RB+RT + any face button
 - Speed limiting via `--speed-limit` (default 50%)
+
+## Teleop replay with music
+
+Replay a recorded episode with synchronized music playback:
+
+```bash
+# Basic replay with song
+.venv/bin/python scripts/replay_teleop.py 192.168.1.246 \
+    --aes-key KEY --dataset data/dance-song-1/data/chunk-000 --episode 3 \
+    --song ../assets/first-song.m4a --audio-head-start 0.5
+
+# Without music (press ENTER to start moves manually)
+.venv/bin/python scripts/replay_teleop.py 192.168.1.246 \
+    --aes-key KEY --dataset data/dance-song-1/data/chunk-000 --episode 3 --no-music
+
+# Disable position hold during handstand/erect
+.venv/bin/python scripts/replay_teleop.py 192.168.1.246 --no-hold
+```
+
+Features:
+- Auto-detects starting posture from recording (crouched/standing)
+- Closed-loop position hold during balancing modes (handstand/erect)
+- Saves replay log to `data/replay_log.parquet` with live robot state
+
+## Multi-robot choreography show
+
+Run synchronized dance on multiple robots with live D-pad takeover:
+
+```bash
+.venv/bin/python scripts/choreo_multi.py config/choreo_show.yaml --audio-head-start 4.0
+```
+
+**Show config** (`config/choreo_show.yaml`):
+
+```yaml
+song: ../assets/first-song.m4a
+
+robots:
+  - name: pro1
+    ip: 192.168.1.246
+    aes_key: 2c09e23856fa423ed680313dd939a3f0
+    pro: true
+    dataset: data/dance-song-1/data/chunk-000
+    episode: 3
+
+  - name: air1
+    ip: 192.168.1.133
+    pro: false
+    dataset: data/dance-song-1/data/chunk-000
+    episode: 3
+```
+
+**Show flow:**
+1. Connects all robots, sets starting postures
+2. D-pad active for pre-show positioning
+3. Press ENTER to start music + dance
+4. D-pad takeover during show (exclusive single-robot control)
+5. After show ends, D-pad remains active for repositioning
+6. Ctrl+C to exit
+
+**D-pad mapping:**
+- Up = robot 1, Down = robot 2, Left = robot 3, Right = robot 4
+- First press = take manual control, second press = release back to dance
+
+**Pro/Air handling:**
+- Air robots automatically substitute Pro-only moves (double-click R2 = Erect)
+  with sit/stand transitions to stay in sync.

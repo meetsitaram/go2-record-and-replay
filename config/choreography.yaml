@@ -1,0 +1,2007 @@
+song:
+  file: ../assets/Dog-song.m4a
+  duration: 414.96
+  tempo: 123.0
+  num_beats: 843
+  num_measures: 211
+moves:
+- move: Hello
+  type: builtin_move
+  start_time: 0.139
+  end_time: 5.239
+  duration: 5.1
+  api_id: 1016
+  energy_level: low
+  beat_aligned: true
+- move: Dance1
+  type: builtin_move
+  start_time: 8.127
+  end_time: 25.727
+  duration: 17.6
+  api_id: 1022
+  energy_level: high
+  beat_aligned: true
+- type: correction
+  mode: closed_loop
+  start_time: 26.227
+  end_time: 27.687
+  max_duration: 2.46
+  duration: 1.46
+  speed: 0.2
+  yaw_speed: 0.4
+  position_tolerance: 0.05
+  yaw_tolerance: 0.05
+  fallback_velocity:
+    x: -0.147
+    y: 0.136
+    yaw: 0
+  reverses: Dance1
+- move: Dance2
+  type: builtin_move
+  start_time: 32.09
+  end_time: 69.59
+  duration: 37.5
+  api_id: 1023
+  energy_level: high
+  beat_aligned: true
+- type: correction
+  mode: closed_loop
+  start_time: 70.09
+  end_time: 71.55
+  max_duration: 2.46
+  duration: 1.46
+  speed: 0.2
+  yaw_speed: 0.4
+  position_tolerance: 0.05
+  yaw_tolerance: 0.05
+  fallback_velocity:
+    x: -0.198
+    y: -0.031
+    yaw: 0.4
+  reverses: Dance2
+- move: Scrape
+  type: builtin_move
+  start_time: 76.138
+  end_time: 83.588
+  duration: 7.45
+  api_id: 1029
+  energy_level: medium
+  beat_aligned: true
+- move: Hello
+  type: builtin_move
+  start_time: 89.792
+  end_time: 94.892
+  duration: 5.1
+  api_id: 1016
+  energy_level: low
+  beat_aligned: true
+- move: Dance1
+  type: builtin_move
+  start_time: 101.425
+  end_time: 119.025
+  duration: 17.6
+  api_id: 1022
+  energy_level: high
+  beat_aligned: true
+- type: correction
+  mode: closed_loop
+  start_time: 119.525
+  end_time: 120.985
+  max_duration: 2.46
+  duration: 1.46
+  speed: 0.2
+  yaw_speed: 0.4
+  position_tolerance: 0.05
+  yaw_tolerance: 0.05
+  fallback_velocity:
+    x: -0.147
+    y: 0.136
+    yaw: 0
+  reverses: Dance1
+- move: Stretch
+  type: builtin_move
+  start_time: 124.389
+  end_time: 129.289
+  duration: 4.9
+  api_id: 1017
+  energy_level: low
+  beat_aligned: true
+- move: Dance2
+  type: builtin_move
+  start_time: 132.331
+  end_time: 169.831
+  duration: 37.5
+  api_id: 1023
+  energy_level: high
+  beat_aligned: true
+- type: correction
+  mode: closed_loop
+  start_time: 170.331
+  end_time: 171.791
+  max_duration: 2.46
+  duration: 1.46
+  speed: 0.2
+  yaw_speed: 0.4
+  position_tolerance: 0.05
+  yaw_tolerance: 0.05
+  fallback_velocity:
+    x: -0.198
+    y: -0.031
+    yaw: 0.4
+  reverses: Dance2
+- move: Dance1
+  type: builtin_move
+  start_time: 177.122
+  end_time: 194.722
+  duration: 17.6
+  api_id: 1022
+  energy_level: high
+  beat_aligned: true
+- type: correction
+  mode: closed_loop
+  start_time: 195.222
+  end_time: 196.682
+  max_duration: 2.46
+  duration: 1.46
+  speed: 0.2
+  yaw_speed: 0.4
+  position_tolerance: 0.05
+  yaw_tolerance: 0.05
+  fallback_velocity:
+    x: -0.147
+    y: 0.136
+    yaw: 0
+  reverses: Dance1
+- move: Hello
+  type: builtin_move
+  start_time: 201.038
+  end_time: 206.138
+  duration: 5.1
+  api_id: 1016
+  energy_level: low
+  beat_aligned: true
+- move: Stretch
+  type: builtin_move
+  start_time: 212.602
+  end_time: 217.502
+  duration: 4.9
+  api_id: 1017
+  energy_level: low
+  beat_aligned: true
+- move: Pose
+  type: builtin_move
+  start_time: 220.45
+  end_time: 230.9
+  duration: 10.45
+  api_id: 1028
+  energy_level: low
+  beat_aligned: true
+- move: StandDown
+  type: builtin_move
+  start_time: 237.169
+  end_time: 244.719
+  duration: 7.55
+  api_id: 1005
+  energy_level: low
+  beat_aligned: true
+- move: Scrape
+  type: builtin_move
+  start_time: 248.802
+  end_time: 256.252
+  duration: 7.45
+  api_id: 1029
+  energy_level: medium
+  beat_aligned: true
+- move: Dance1
+  type: builtin_move
+  start_time: 261.48
+  end_time: 279.08
+  duration: 17.6
+  api_id: 1022
+  energy_level: high
+  beat_aligned: true
+- type: correction
+  mode: closed_loop
+  start_time: 279.58
+  end_time: 281.04
+  max_duration: 2.46
+  duration: 1.46
+  speed: 0.2
+  yaw_speed: 0.4
+  position_tolerance: 0.05
+  yaw_tolerance: 0.05
+  fallback_velocity:
+    x: -0.147
+    y: 0.136
+    yaw: 0
+  reverses: Dance1
+- move: Hello
+  type: builtin_move
+  start_time: 284.584
+  end_time: 289.684
+  duration: 5.1
+  api_id: 1016
+  energy_level: low
+  beat_aligned: true
+- move: Scrape
+  type: builtin_move
+  start_time: 292.316
+  end_time: 299.766
+  duration: 7.45
+  api_id: 1029
+  energy_level: medium
+  beat_aligned: true
+- move: Stretch
+  type: builtin_move
+  start_time: 305.807
+  end_time: 310.707
+  duration: 4.9
+  api_id: 1017
+  energy_level: low
+  beat_aligned: true
+- move: FingerHeart
+  type: builtin_move
+  start_time: 317.394
+  end_time: 324.334
+  duration: 6.94
+  api_id: 1036
+  energy_level: medium
+  beat_aligned: true
+- move: FrontPounce
+  type: builtin_move
+  start_time: 328.957
+  end_time: 332.907
+  duration: 3.95
+  api_id: 1032
+  energy_level: medium
+  beat_aligned: true
+- type: correction
+  mode: closed_loop
+  start_time: 333.407
+  end_time: 334.667
+  max_duration: 2.26
+  duration: 1.26
+  speed: 0.2
+  yaw_speed: 0.4
+  position_tolerance: 0.05
+  yaw_tolerance: 0.05
+  fallback_velocity:
+    x: -0.196
+    y: 0.039
+    yaw: 0
+  reverses: FrontPounce
+- move: Dance1
+  type: builtin_move
+  start_time: 340.66
+  end_time: 358.26
+  duration: 17.6
+  api_id: 1022
+  energy_level: high
+  beat_aligned: true
+- type: correction
+  mode: closed_loop
+  start_time: 358.76
+  end_time: 360.22
+  max_duration: 2.46
+  duration: 1.46
+  speed: 0.2
+  yaw_speed: 0.4
+  position_tolerance: 0.05
+  yaw_tolerance: 0.05
+  fallback_velocity:
+    x: -0.147
+    y: 0.136
+    yaw: 0
+  reverses: Dance1
+- move: Hello
+  type: builtin_move
+  start_time: 364.646
+  end_time: 369.746
+  duration: 5.1
+  api_id: 1016
+  energy_level: low
+  beat_aligned: true
+- move: Scrape
+  type: builtin_move
+  start_time: 372.007
+  end_time: 379.457
+  duration: 7.45
+  api_id: 1029
+  energy_level: medium
+  beat_aligned: true
+- move: FingerHeart
+  type: builtin_move
+  start_time: 384.012
+  end_time: 390.952
+  duration: 6.94
+  api_id: 1036
+  energy_level: medium
+  beat_aligned: true
+- move: FrontPounce
+  type: builtin_move
+  start_time: 397.108
+  end_time: 401.058
+  duration: 3.95
+  api_id: 1032
+  energy_level: medium
+  beat_aligned: true
+- type: correction
+  mode: closed_loop
+  start_time: 401.558
+  end_time: 402.818
+  max_duration: 2.26
+  duration: 1.26
+  speed: 0.2
+  yaw_speed: 0.4
+  position_tolerance: 0.05
+  yaw_tolerance: 0.05
+  fallback_velocity:
+    x: -0.196
+    y: 0.039
+    yaw: 0
+  reverses: FrontPounce
+- move: Hello
+  type: builtin_move
+  start_time: 405.653
+  end_time: 410.753
+  duration: 5.1
+  api_id: 1016
+  energy_level: low
+  beat_aligned: true
+gaps:
+- start: 27.69
+  end: 32.09
+  duration: 4.4
+  note: available for custom move
+- start: 71.55
+  end: 76.14
+  duration: 4.59
+  note: available for custom move
+- start: 83.59
+  end: 89.79
+  duration: 6.2
+  note: available for custom move
+- start: 94.89
+  end: 101.42
+  duration: 6.53
+  note: available for custom move
+- start: 120.98
+  end: 124.39
+  duration: 3.4
+  note: available for custom move
+- start: 129.29
+  end: 132.33
+  duration: 3.04
+  note: available for custom move
+- start: 171.79
+  end: 177.12
+  duration: 5.33
+  note: available for custom move
+- start: 196.68
+  end: 201.04
+  duration: 4.36
+  note: available for custom move
+- start: 206.14
+  end: 212.6
+  duration: 6.46
+  note: available for custom move
+- start: 230.9
+  end: 237.17
+  duration: 6.27
+  note: available for custom move
+- start: 244.72
+  end: 248.8
+  duration: 4.08
+  note: available for custom move
+- start: 256.25
+  end: 261.48
+  duration: 5.23
+  note: available for custom move
+- start: 281.04
+  end: 284.58
+  duration: 3.54
+  note: available for custom move
+- start: 299.77
+  end: 305.81
+  duration: 6.04
+  note: available for custom move
+- start: 310.71
+  end: 317.39
+  duration: 6.69
+  note: available for custom move
+- start: 324.33
+  end: 328.96
+  duration: 4.62
+  note: available for custom move
+- start: 334.67
+  end: 340.66
+  duration: 5.99
+  note: available for custom move
+- start: 360.22
+  end: 364.65
+  duration: 4.43
+  note: available for custom move
+- start: 379.46
+  end: 384.01
+  duration: 4.56
+  note: available for custom move
+- start: 390.95
+  end: 397.11
+  duration: 6.16
+  note: available for custom move
+- start: 410.75
+  end: 414.96
+  duration: 4.21
+  note: available for custom move (ending)
+beat_times:
+- 0.139
+- 0.65
+- 1.138
+- 1.625
+- 2.136
+- 2.647
+- 3.158
+- 3.646
+- 4.11
+- 4.621
+- 5.132
+- 5.619
+- 6.107
+- 6.618
+- 7.129
+- 7.639
+- 8.127
+- 8.615
+- 9.125
+- 9.636
+- 10.124
+- 10.635
+- 11.122
+- 11.633
+- 12.121
+- 12.608
+- 13.119
+- 13.63
+- 14.118
+- 14.629
+- 15.139
+- 15.627
+- 16.115
+- 16.625
+- 17.136
+- 17.624
+- 18.135
+- 18.622
+- 19.133
+- 19.644
+- 20.132
+- 20.619
+- 21.13
+- 21.618
+- 22.129
+- 22.639
+- 23.127
+- 23.638
+- 24.126
+- 24.636
+- 25.124
+- 25.612
+- 26.122
+- 26.633
+- 27.144
+- 27.655
+- 28.143
+- 28.653
+- 29.141
+- 29.652
+- 30.14
+- 30.627
+- 31.138
+- 31.626
+- 32.09
+- 32.624
+- 33.135
+- 33.646
+- 34.133
+- 34.644
+- 35.132
+- 35.643
+- 36.13
+- 36.641
+- 37.129
+- 37.64
+- 38.127
+- 38.638
+- 39.126
+- 39.636
+- 40.147
+- 40.658
+- 41.146
+- 41.657
+- 42.121
+- 42.632
+- 43.143
+- 43.654
+- 44.141
+- 44.629
+- 45.14
+- 45.65
+- 46.138
+- 46.626
+- 47.113
+- 47.624
+- 48.135
+- 48.646
+- 49.133
+- 49.621
+- 50.132
+- 50.643
+- 51.154
+- 51.641
+- 52.129
+- 52.64
+- 53.15
+- 53.661
+- 54.149
+- 54.66
+- 55.147
+- 55.658
+- 56.146
+- 56.633
+- 57.121
+- 57.632
+- 58.143
+- 58.677
+- 59.164
+- 59.652
+- 60.14
+- 60.651
+- 61.138
+- 61.649
+- 62.137
+- 62.647
+- 63.135
+- 63.646
+- 64.134
+- 64.644
+- 65.132
+- 65.62
+- 66.13
+- 66.641
+- 67.129
+- 67.64
+- 68.127
+- 68.638
+- 69.149
+- 69.637
+- 70.124
+- 70.635
+- 71.123
+- 71.634
+- 72.144
+- 72.632
+- 73.12
+- 73.63
+- 74.141
+- 74.629
+- 75.117
+- 75.627
+- 76.138
+- 76.649
+- 77.137
+- 77.624
+- 78.135
+- 78.646
+- 79.157
+- 79.644
+- 80.132
+- 80.62
+- 81.131
+- 81.595
+- 82.083
+- 82.547
+- 83.035
+- 83.522
+- 84.01
+- 84.497
+- 84.939
+- 85.426
+- 85.867
+- 86.355
+- 86.866
+- 87.353
+- 87.841
+- 88.352
+- 88.816
+- 89.35
+- 89.792
+- 90.256
+- 90.744
+- 91.254
+- 91.742
+- 92.206
+- 92.694
+- 93.182
+- 93.646
+- 94.134
+- 94.621
+- 95.086
+- 95.573
+- 96.061
+- 96.572
+- 97.059
+- 97.547
+- 98.035
+- 98.499
+- 98.987
+- 99.474
+- 99.962
+- 100.45
+- 100.937
+- 101.425
+- 101.889
+- 102.4
+- 102.888
+- 103.375
+- 103.84
+- 104.327
+- 104.792
+- 105.279
+- 105.767
+- 106.255
+- 106.742
+- 107.207
+- 107.694
+- 108.182
+- 108.669
+- 109.134
+- 109.621
+- 110.109
+- 110.597
+- 111.084
+- 111.572
+- 112.06
+- 112.524
+- 113.035
+- 113.499
+- 113.964
+- 114.474
+- 114.962
+- 115.426
+- 115.891
+- 116.402
+- 116.889
+- 117.377
+- 117.864
+- 118.352
+- 118.817
+- 119.304
+- 119.792
+- 120.279
+- 120.744
+- 121.255
+- 121.719
+- 122.114
+- 122.508
+- 122.95
+- 123.437
+- 123.902
+- 124.389
+- 124.877
+- 125.365
+- 125.852
+- 126.317
+- 126.804
+- 127.292
+- 127.779
+- 128.267
+- 128.731
+- 129.219
+- 129.73
+- 130.38
+- 130.868
+- 131.355
+- 131.843
+- 132.331
+- 132.818
+- 133.306
+- 133.77
+- 134.258
+- 134.745
+- 135.233
+- 135.721
+- 136.208
+- 136.696
+- 137.16
+- 137.648
+- 138.136
+- 138.623
+- 139.111
+- 139.575
+- 140.063
+- 140.55
+- 141.038
+- 141.526
+- 142.013
+- 142.501
+- 142.988
+- 143.453
+- 143.94
+- 144.428
+- 144.916
+- 145.403
+- 145.891
+- 146.355
+- 146.843
+- 147.331
+- 147.818
+- 148.306
+- 148.793
+- 149.258
+- 149.745
+- 150.233
+- 150.721
+- 151.208
+- 151.673
+- 152.16
+- 152.648
+- 153.136
+- 153.623
+- 154.111
+- 154.575
+- 155.063
+- 155.55
+- 156.038
+- 156.526
+- 157.013
+- 157.501
+- 157.965
+- 158.453
+- 158.941
+- 159.451
+- 159.916
+- 160.403
+- 160.891
+- 161.379
+- 161.89
+- 162.377
+- 162.865
+- 163.352
+- 163.84
+- 164.328
+- 164.838
+- 165.326
+- 165.814
+- 166.301
+- 166.789
+- 167.277
+- 167.787
+- 168.275
+- 168.763
+- 169.25
+- 169.738
+- 170.225
+- 170.713
+- 171.224
+- 171.712
+- 172.199
+- 172.687
+- 173.198
+- 173.685
+- 174.173
+- 174.66
+- 175.148
+- 175.659
+- 176.147
+- 176.634
+- 177.122
+- 177.609
+- 178.097
+- 178.585
+- 179.072
+- 179.583
+- 180.071
+- 180.558
+- 181.046
+- 181.534
+- 182.021
+- 182.532
+- 182.996
+- 183.438
+- 183.902
+- 184.366
+- 184.831
+- 185.295
+- 185.783
+- 186.27
+- 186.758
+- 187.222
+- 187.71
+- 188.198
+- 188.685
+- 189.173
+- 189.661
+- 190.079
+- 190.497
+- 190.914
+- 191.332
+- 191.797
+- 192.192
+- 192.633
+- 193.051
+- 193.469
+- 193.863
+- 194.305
+- 194.699
+- 195.164
+- 195.558
+- 196.0
+- 196.418
+- 196.859
+- 197.254
+- 197.695
+- 198.089
+- 198.554
+- 199.088
+- 199.599
+- 200.11
+- 200.62
+- 201.038
+- 201.456
+- 201.921
+- 202.432
+- 202.942
+- 203.453
+- 203.987
+- 204.452
+- 204.963
+- 205.473
+- 205.938
+- 206.425
+- 206.913
+- 207.377
+- 207.819
+- 208.237
+- 208.678
+- 209.096
+- 209.537
+- 210.048
+- 210.582
+- 211.093
+- 211.603
+- 212.068
+- 212.602
+- 213.113
+- 213.624
+- 214.134
+- 214.576
+- 215.017
+- 215.504
+- 216.015
+- 216.526
+- 217.037
+- 217.525
+- 217.989
+- 218.477
+- 218.964
+- 219.452
+- 219.963
+- 220.45
+- 220.915
+- 221.356
+- 221.751
+- 222.192
+- 222.61
+- 223.051
+- 223.469
+- 223.887
+- 224.305
+- 224.746
+- 225.141
+- 225.605
+- 226.116
+- 226.627
+- 227.138
+- 227.672
+- 228.09
+- 228.554
+- 229.042
+- 229.552
+- 230.063
+- 230.574
+- 231.085
+- 231.526
+- 232.014
+- 232.501
+- 232.989
+- 233.477
+- 233.964
+- 234.452
+- 234.893
+- 235.311
+- 235.752
+- 236.17
+- 236.658
+- 237.169
+- 237.656
+- 238.167
+- 238.678
+- 239.119
+- 239.537
+- 240.001
+- 240.512
+- 241.023
+- 241.534
+- 242.045
+- 242.532
+- 243.043
+- 243.554
+- 244.065
+- 244.599
+- 245.04
+- 245.435
+- 245.899
+- 246.294
+- 246.735
+- 247.246
+- 247.78
+- 248.221
+- 248.802
+- 249.266
+- 249.661
+- 250.102
+- 250.52
+- 250.938
+- 251.356
+- 251.797
+- 252.215
+- 252.656
+- 253.051
+- 253.492
+- 254.003
+- 254.514
+- 255.002
+- 255.466
+- 255.977
+- 256.395
+- 256.836
+- 257.277
+- 257.718
+- 258.136
+- 258.554
+- 258.972
+- 259.413
+- 259.924
+- 260.435
+- 260.946
+- 261.48
+- 261.921
+- 262.385
+- 262.873
+- 263.361
+- 263.848
+- 264.359
+- 264.87
+- 265.311
+- 265.729
+- 266.194
+- 266.704
+- 267.215
+- 267.726
+- 268.237
+- 268.678
+- 269.096
+- 269.514
+- 269.955
+- 270.396
+- 270.884
+- 271.372
+- 271.859
+- 272.347
+- 272.834
+- 273.322
+- 273.81
+- 274.321
+- 274.808
+- 275.319
+- 275.83
+- 276.294
+- 276.712
+- 277.2
+- 277.711
+- 278.221
+- 278.732
+- 279.243
+- 279.684
+- 280.079
+- 280.567
+- 281.078
+- 281.565
+- 282.076
+- 282.61
+- 283.074
+- 283.585
+- 284.096
+- 284.584
+- 285.071
+- 285.559
+- 286.047
+- 286.511
+- 286.999
+- 287.509
+- 288.02
+- 288.485
+- 288.972
+- 289.414
+- 289.855
+- 290.296
+- 290.807
+- 291.318
+- 291.828
+- 292.316
+- 292.804
+- 293.314
+- 293.802
+- 294.29
+- 294.801
+- 295.219
+- 295.636
+- 296.147
+- 296.635
+- 297.123
+- 297.633
+- 298.098
+- 298.539
+- 298.98
+- 299.468
+- 299.979
+- 300.466
+- 300.954
+- 301.465
+- 301.976
+- 302.44
+- 302.928
+- 303.392
+- 303.856
+- 304.321
+- 304.808
+- 305.296
+- 305.807
+- 306.294
+- 306.805
+- 307.316
+- 307.78
+- 308.268
+- 308.779
+- 309.313
+- 309.801
+- 310.288
+- 310.799
+- 311.217
+- 311.635
+- 312.146
+- 312.657
+- 313.168
+- 313.655
+- 314.143
+- 314.63
+- 315.072
+- 315.536
+- 316.0
+- 316.465
+- 316.952
+- 317.394
+- 317.835
+- 318.299
+- 318.81
+- 319.321
+- 319.832
+- 320.319
+- 320.807
+- 321.318
+- 321.805
+- 322.293
+- 322.734
+- 323.175
+- 323.64
+- 324.151
+- 324.638
+- 325.149
+- 325.637
+- 326.147
+- 326.635
+- 327.146
+- 327.634
+- 328.075
+- 328.516
+- 328.957
+- 329.375
+- 329.816
+- 330.304
+- 330.815
+- 331.302
+- 331.813
+- 332.301
+- 332.788
+- 333.276
+- 333.74
+- 334.205
+- 334.669
+- 335.157
+- 335.644
+- 336.132
+- 336.62
+- 337.131
+- 337.641
+- 338.152
+- 338.663
+- 339.151
+- 339.638
+- 340.149
+- 340.66
+- 341.171
+- 341.658
+- 342.169
+- 342.657
+- 343.168
+- 343.655
+- 344.143
+- 344.654
+- 345.165
+- 345.652
+- 346.14
+- 346.651
+- 347.138
+- 347.649
+- 348.137
+- 348.601
+- 349.135
+- 349.646
+- 350.157
+- 350.668
+- 351.155
+- 351.643
+- 352.131
+- 352.618
+- 353.083
+- 353.57
+- 354.058
+- 354.545
+- 355.033
+- 355.544
+- 356.055
+- 356.566
+- 357.053
+- 357.564
+- 358.075
+- 358.586
+- 359.073
+- 359.561
+- 360.072
+- 360.583
+- 361.07
+- 361.558
+- 362.046
+- 362.58
+- 363.114
+- 363.624
+- 364.135
+- 364.646
+- 365.111
+- 365.552
+- 366.063
+- 366.573
+- 367.107
+- 367.618
+- 368.152
+- 368.57
+- 369.012
+- 369.429
+- 369.871
+- 370.289
+- 370.73
+- 371.148
+- 371.566
+- 372.007
+- 372.425
+- 372.866
+- 373.307
+- 373.725
+- 374.166
+- 374.584
+- 375.002
+- 375.443
+- 375.861
+- 376.279
+- 376.721
+- 377.162
+- 377.58
+- 378.021
+- 378.439
+- 378.857
+- 379.298
+- 379.716
+- 380.157
+- 380.575
+- 381.016
+- 381.434
+- 381.875
+- 382.293
+- 382.711
+- 383.129
+- 383.57
+- 384.012
+- 384.43
+- 384.871
+- 385.289
+- 385.707
+- 386.148
+- 386.566
+- 387.03
+- 387.518
+- 388.005
+- 388.493
+- 388.957
+- 389.492
+- 390.026
+- 390.467
+- 390.931
+- 391.442
+- 391.953
+- 392.417
+- 392.951
+- 393.462
+- 393.903
+- 394.321
+- 394.762
+- 395.273
+- 395.807
+- 396.249
+- 396.69
+- 397.108
+- 397.549
+- 397.99
+- 398.478
+- 398.965
+- 399.453
+- 399.871
+- 400.335
+- 400.776
+- 401.31
+- 401.821
+- 402.262
+- 402.727
+- 403.238
+- 403.749
+- 404.213
+- 404.677
+- 405.165
+- 405.653
+measure_starts:
+- 0.139
+- 2.136
+- 4.11
+- 6.107
+- 8.127
+- 10.124
+- 12.121
+- 14.118
+- 16.115
+- 18.135
+- 20.132
+- 22.129
+- 24.126
+- 26.122
+- 28.143
+- 30.14
+- 32.09
+- 34.133
+- 36.13
+- 38.127
+- 40.147
+- 42.121
+- 44.141
+- 46.138
+- 48.135
+- 50.132
+- 52.129
+- 54.149
+- 56.146
+- 58.143
+- 60.14
+- 62.137
+- 64.134
+- 66.13
+- 68.127
+- 70.124
+- 72.144
+- 74.141
+- 76.138
+- 78.135
+- 80.132
+- 82.083
+- 84.01
+- 85.867
+- 87.841
+- 89.792
+- 91.742
+- 93.646
+- 95.573
+- 97.547
+- 99.474
+- 101.425
+- 103.375
+- 105.279
+- 107.207
+- 109.134
+- 111.084
+- 113.035
+- 114.962
+- 116.889
+- 118.817
+- 120.744
+- 122.508
+- 124.389
+- 126.317
+- 128.267
+- 130.38
+- 132.331
+- 134.258
+- 136.208
+- 138.136
+- 140.063
+- 142.013
+- 143.94
+- 145.891
+- 147.818
+- 149.745
+- 151.673
+- 153.623
+- 155.55
+- 157.501
+- 159.451
+- 161.379
+- 163.352
+- 165.326
+- 167.277
+- 169.25
+- 171.224
+- 173.198
+- 175.148
+- 177.122
+- 179.072
+- 181.046
+- 182.996
+- 184.831
+- 186.758
+- 188.685
+- 190.497
+- 192.192
+- 193.863
+- 195.558
+- 197.254
+- 199.088
+- 201.038
+- 202.942
+- 204.963
+- 206.913
+- 208.678
+- 210.582
+- 212.602
+- 214.576
+- 216.526
+- 218.477
+- 220.45
+- 222.192
+- 223.887
+- 225.605
+- 227.672
+- 229.552
+- 231.526
+- 233.477
+- 235.311
+- 237.169
+- 239.119
+- 241.023
+- 243.043
+- 245.04
+- 246.735
+- 248.802
+- 250.52
+- 252.215
+- 254.003
+- 255.977
+- 257.718
+- 259.413
+- 261.48
+- 263.361
+- 265.311
+- 267.215
+- 269.096
+- 270.884
+- 272.834
+- 274.808
+- 276.712
+- 278.732
+- 280.567
+- 282.61
+- 284.584
+- 286.511
+- 288.485
+- 290.296
+- 292.316
+- 294.29
+- 296.147
+- 298.098
+- 299.979
+- 301.976
+- 303.856
+- 305.807
+- 307.78
+- 309.801
+- 311.635
+- 313.655
+- 315.536
+- 317.394
+- 319.321
+- 321.318
+- 323.175
+- 325.149
+- 327.146
+- 328.957
+- 330.815
+- 332.788
+- 334.669
+- 336.62
+- 338.663
+- 340.66
+- 342.657
+- 344.654
+- 346.651
+- 348.601
+- 350.668
+- 352.618
+- 354.545
+- 356.566
+- 358.586
+- 360.583
+- 362.58
+- 364.646
+- 366.573
+- 368.57
+- 370.289
+- 372.007
+- 373.725
+- 375.443
+- 377.162
+- 378.857
+- 380.575
+- 382.293
+- 384.012
+- 385.707
+- 387.518
+- 389.492
+- 391.442
+- 393.462
+- 395.273
+- 397.108
+- 398.965
+- 400.776
+- 402.727
+- 404.677
+segments:
+- start: 0.0
+  end: 4.0
+  energy: 0.159
+  beats: 8
+  level: low
+- start: 4.0
+  end: 8.0
+  energy: 0.157
+  beats: 8
+  level: low
+- start: 8.0
+  end: 12.0
+  energy: 0.377
+  beats: 8
+  level: high
+- start: 12.0
+  end: 16.0
+  energy: 0.347
+  beats: 8
+  level: high
+- start: 16.0
+  end: 20.0
+  energy: 0.312
+  beats: 8
+  level: medium
+- start: 20.0
+  end: 24.0
+  energy: 0.34
+  beats: 8
+  level: high
+- start: 24.0
+  end: 28.0
+  energy: 0.363
+  beats: 8
+  level: high
+- start: 28.0
+  end: 32.0
+  energy: 0.363
+  beats: 8
+  level: high
+- start: 32.0
+  end: 36.0
+  energy: 0.36
+  beats: 8
+  level: high
+- start: 36.0
+  end: 40.0
+  energy: 0.368
+  beats: 8
+  level: high
+- start: 40.0
+  end: 44.0
+  energy: 0.37
+  beats: 8
+  level: high
+- start: 44.0
+  end: 48.0
+  energy: 0.376
+  beats: 8
+  level: high
+- start: 48.0
+  end: 52.0
+  energy: 0.335
+  beats: 8
+  level: high
+- start: 52.0
+  end: 56.0
+  energy: 0.306
+  beats: 8
+  level: medium
+- start: 56.0
+  end: 60.0
+  energy: 0.345
+  beats: 8
+  level: high
+- start: 60.0
+  end: 64.0
+  energy: 0.325
+  beats: 8
+  level: medium
+- start: 64.0
+  end: 68.0
+  energy: 0.338
+  beats: 8
+  level: high
+- start: 68.0
+  end: 72.0
+  energy: 0.312
+  beats: 8
+  level: medium
+- start: 72.0
+  end: 76.0
+  energy: 0.247
+  beats: 8
+  level: low
+- start: 76.0
+  end: 80.0
+  energy: 0.307
+  beats: 8
+  level: medium
+- start: 80.0
+  end: 84.0
+  energy: 0.184
+  beats: 8
+  level: low
+- start: 84.0
+  end: 88.0
+  energy: 0.16
+  beats: 9
+  level: low
+- start: 88.0
+  end: 92.0
+  energy: 0.206
+  beats: 8
+  level: low
+- start: 92.0
+  end: 96.0
+  energy: 0.384
+  beats: 8
+  level: high
+- start: 96.0
+  end: 100.0
+  energy: 0.394
+  beats: 9
+  level: high
+- start: 100.0
+  end: 104.0
+  energy: 0.39
+  beats: 8
+  level: high
+- start: 104.0
+  end: 108.0
+  energy: 0.389
+  beats: 8
+  level: high
+- start: 108.0
+  end: 112.0
+  energy: 0.393
+  beats: 8
+  level: high
+- start: 112.0
+  end: 116.0
+  energy: 0.395
+  beats: 9
+  level: high
+- start: 116.0
+  end: 120.0
+  energy: 0.385
+  beats: 8
+  level: high
+- start: 120.0
+  end: 124.0
+  energy: 0.305
+  beats: 9
+  level: medium
+- start: 124.0
+  end: 128.0
+  energy: 0.125
+  beats: 8
+  level: low
+- start: 128.0
+  end: 132.0
+  energy: 0.302
+  beats: 8
+  level: medium
+- start: 132.0
+  end: 136.0
+  energy: 0.485
+  beats: 8
+  level: high
+- start: 136.0
+  end: 140.0
+  energy: 0.487
+  beats: 8
+  level: high
+- start: 140.0
+  end: 144.0
+  energy: 0.499
+  beats: 9
+  level: high
+- start: 144.0
+  end: 148.0
+  energy: 0.502
+  beats: 8
+  level: high
+- start: 148.0
+  end: 152.0
+  energy: 0.494
+  beats: 8
+  level: high
+- start: 152.0
+  end: 156.0
+  energy: 0.49
+  beats: 8
+  level: high
+- start: 156.0
+  end: 160.0
+  energy: 0.468
+  beats: 9
+  level: high
+- start: 160.0
+  end: 164.0
+  energy: 0.362
+  beats: 8
+  level: high
+- start: 164.0
+  end: 168.0
+  energy: 0.348
+  beats: 8
+  level: high
+- start: 168.0
+  end: 172.0
+  energy: 0.371
+  beats: 8
+  level: high
+- start: 172.0
+  end: 176.0
+  energy: 0.358
+  beats: 8
+  level: high
+- start: 176.0
+  end: 180.0
+  energy: 0.361
+  beats: 8
+  level: high
+- start: 180.0
+  end: 184.0
+  energy: 0.366
+  beats: 9
+  level: high
+- start: 184.0
+  end: 188.0
+  energy: 0.203
+  beats: 8
+  level: low
+- start: 188.0
+  end: 192.0
+  energy: 0.269
+  beats: 9
+  level: medium
+- start: 192.0
+  end: 196.0
+  energy: 0.209
+  beats: 10
+  level: low
+- start: 196.0
+  end: 200.0
+  energy: 0.21
+  beats: 8
+  level: low
+- start: 200.0
+  end: 204.0
+  energy: 0.155
+  beats: 9
+  level: low
+- start: 204.0
+  end: 208.0
+  energy: 0.214
+  beats: 8
+  level: low
+- start: 208.0
+  end: 212.0
+  energy: 0.243
+  beats: 8
+  level: low
+- start: 212.0
+  end: 216.0
+  energy: 0.127
+  beats: 8
+  level: low
+- start: 216.0
+  end: 220.0
+  energy: 0.221
+  beats: 9
+  level: low
+- start: 220.0
+  end: 224.0
+  energy: 0.237
+  beats: 9
+  level: low
+- start: 224.0
+  end: 228.0
+  energy: 0.178
+  beats: 8
+  level: low
+- start: 228.0
+  end: 232.0
+  energy: 0.203
+  beats: 8
+  level: low
+- start: 232.0
+  end: 236.0
+  energy: 0.236
+  beats: 9
+  level: low
+- start: 236.0
+  end: 240.0
+  energy: 0.252
+  beats: 8
+  level: low
+- start: 240.0
+  end: 244.0
+  energy: 0.275
+  beats: 8
+  level: medium
+- start: 244.0
+  end: 248.0
+  energy: 0.316
+  beats: 9
+  level: medium
+- start: 248.0
+  end: 252.0
+  energy: 0.304
+  beats: 9
+  level: medium
+- start: 252.0
+  end: 256.0
+  energy: 0.233
+  beats: 9
+  level: low
+- start: 256.0
+  end: 260.0
+  energy: 0.269
+  beats: 9
+  level: medium
+- start: 260.0
+  end: 264.0
+  energy: 0.345
+  beats: 8
+  level: high
+- start: 264.0
+  end: 268.0
+  energy: 0.3
+  beats: 8
+  level: medium
+- start: 268.0
+  end: 272.0
+  energy: 0.332
+  beats: 9
+  level: high
+- start: 272.0
+  end: 276.0
+  energy: 0.338
+  beats: 8
+  level: high
+- start: 276.0
+  end: 280.0
+  energy: 0.335
+  beats: 8
+  level: high
+- start: 280.0
+  end: 284.0
+  energy: 0.32
+  beats: 8
+  level: medium
+- start: 284.0
+  end: 288.0
+  energy: 0.104
+  beats: 8
+  level: low
+- start: 288.0
+  end: 292.0
+  energy: 0.211
+  beats: 9
+  level: low
+- start: 292.0
+  end: 296.0
+  energy: 0.269
+  beats: 8
+  level: medium
+- start: 296.0
+  end: 300.0
+  energy: 0.277
+  beats: 9
+  level: medium
+- start: 300.0
+  end: 304.0
+  energy: 0.27
+  beats: 8
+  level: medium
+- start: 304.0
+  end: 308.0
+  energy: 0.266
+  beats: 8
+  level: low
+- start: 308.0
+  end: 312.0
+  energy: 0.268
+  beats: 8
+  level: low
+- start: 312.0
+  end: 316.0
+  energy: 0.309
+  beats: 8
+  level: medium
+- start: 316.0
+  end: 320.0
+  energy: 0.291
+  beats: 9
+  level: medium
+- start: 320.0
+  end: 324.0
+  energy: 0.284
+  beats: 8
+  level: medium
+- start: 324.0
+  end: 328.0
+  energy: 0.292
+  beats: 8
+  level: medium
+- start: 328.0
+  end: 332.0
+  energy: 0.302
+  beats: 9
+  level: medium
+- start: 332.0
+  end: 336.0
+  energy: 0.335
+  beats: 8
+  level: high
+- start: 336.0
+  end: 340.0
+  energy: 0.387
+  beats: 8
+  level: high
+- start: 340.0
+  end: 344.0
+  energy: 0.369
+  beats: 8
+  level: high
+- start: 344.0
+  end: 348.0
+  energy: 0.387
+  beats: 8
+  level: high
+- start: 348.0
+  end: 352.0
+  energy: 0.366
+  beats: 8
+  level: high
+- start: 352.0
+  end: 356.0
+  energy: 0.109
+  beats: 8
+  level: low
+- start: 356.0
+  end: 360.0
+  energy: 0.054
+  beats: 8
+  level: low
+- start: 360.0
+  end: 364.0
+  energy: 0.081
+  beats: 8
+  level: low
+- start: 364.0
+  end: 368.0
+  energy: 0.229
+  beats: 8
+  level: low
+- start: 368.0
+  end: 372.0
+  energy: 0.309
+  beats: 9
+  level: medium
+- start: 372.0
+  end: 376.0
+  energy: 0.3
+  beats: 10
+  level: medium
+- start: 376.0
+  end: 380.0
+  energy: 0.306
+  beats: 9
+  level: medium
+- start: 380.0
+  end: 384.0
+  energy: 0.265
+  beats: 9
+  level: low
+- start: 384.0
+  end: 388.0
+  energy: 0.294
+  beats: 9
+  level: medium
+- start: 388.0
+  end: 392.0
+  energy: 0.309
+  beats: 9
+  level: medium
+- start: 392.0
+  end: 396.0
+  energy: 0.324
+  beats: 8
+  level: medium
+- start: 396.0
+  end: 400.0
+  energy: 0.305
+  beats: 9
+  level: medium
+- start: 400.0
+  end: 404.0
+  energy: 0.273
+  beats: 8
+  level: medium
+- start: 404.0
+  end: 408.0
+  energy: 0.309
+  beats: 4
+  level: medium
+- start: 408.0
+  end: 412.0
+  energy: 0.103
+  beats: 0
+  level: low

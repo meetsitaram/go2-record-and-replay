@@ -150,8 +150,11 @@ class EpisodeRecorder:
         frames = self._frame_count
         self._frame_count = 0
         self._episode_start = None
+        ep_idx = self._episode_count - 1
+        ep_path = Path(self.dataset.root) / "data" / "chunk-000" / f"episode_{ep_idx:06d}.parquet"
         print(f"\n  Episode {self._episode_count} saved ({frames} frames, "
               f"{frames / DATASET_FPS:.1f}s)")
+        print(f"  -> {ep_path}")
 
     def finalize(self):
         """Save any in-progress episode and consolidate the dataset."""

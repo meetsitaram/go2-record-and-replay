@@ -1,0 +1,240 @@
+Hello:
+  api_id: 1016
+  duration: 5.1
+  num_frames: 103
+  fps: 20.2
+  body_height:
+    min: 0.3024
+    max: 0.3793
+    mean: 0.3345
+  velocity_x:
+    min: -0.135
+    max: 0.1884
+  velocity_y:
+    min: -0.1958
+    max: 0.1114
+  roll:
+    min: -0.0583
+    max: 0.0768
+  pitch:
+    min: -0.3125
+    max: 0.017
+  yaw_range: 0.0906
+  angular_energy: 0.1397
+  peak_angular_velocity: 1.5537
+Stretch:
+  api_id: 1017
+  duration: 4.9
+  num_frames: 99
+  fps: 20.2
+  body_height:
+    min: 0.2545
+    max: 0.3805
+    mean: 0.3161
+  velocity_x:
+    min: -0.645
+    max: 0.3653
+  velocity_y:
+    min: -0.0942
+    max: 0.1087
+  roll:
+    min: -0.0381
+    max: 0.0196
+  pitch:
+    min: -0.5415
+    max: 0.2845
+  yaw_range: 0.1339
+  angular_energy: 0.2734
+  peak_angular_velocity: 1.0064
+Dance1:
+  api_id: 1022
+  duration: 17.6
+  num_frames: 353
+  fps: 20.1
+  body_height:
+    min: 0.2378
+    max: 0.3583
+    mean: 0.2984
+  velocity_x:
+    min: -0.5589
+    max: 0.2757
+  velocity_y:
+    min: -0.618
+    max: 0.2707
+  roll:
+    min: -0.088
+    max: 0.0615
+  pitch:
+    min: -0.2757
+    max: 0.1543
+  yaw_range: 1.8056
+  angular_energy: 0.704
+  peak_angular_velocity: 4.4378
+Dance2:
+  api_id: 1023
+  duration: 37.5
+  num_frames: 751
+  fps: 20.0
+  body_height:
+    min: 0.2532
+    max: 0.3749
+    mean: 0.3197
+  velocity_x:
+    min: -0.4612
+    max: 0.8432
+  velocity_y:
+    min: -0.8228
+    max: 0.5362
+  roll:
+    min: -0.4078
+    max: 0.063
+  pitch:
+    min: -0.3173
+    max: 0.1811
+  yaw_range: 1.8555
+  angular_energy: 0.739
+  peak_angular_velocity: 5.2453
+Pose:
+  api_id: 1028
+  duration: 10.45
+  num_frames: 210
+  fps: 20.1
+  body_height:
+    min: 0.3109
+    max: 0.3167
+    mean: 0.3149
+  velocity_x:
+    min: -0.0358
+    max: 0.0061
+  velocity_y:
+    min: -0.018
+    max: 0.0329
+  roll:
+    min: -0.0052
+    max: 0.0047
+  pitch:
+    min: -0.016
+    max: -0.0012
+  yaw_range: 0.0033
+  angular_energy: 0.022
+  peak_angular_velocity: 0.1375
+Scrape:
+  api_id: 1029
+  duration: 7.45
+  num_frames: 150
+  fps: 20.1
+  body_height:
+    min: 0.1564
+    max: 0.3543
+    mean: 0.2794
+  velocity_x:
+    min: -0.3767
+    max: 0.612
+  velocity_y:
+    min: -0.0319
+    max: 0.3484
+  roll:
+    min: -3.1415
+    max: 3.1414
+  pitch:
+    min: -1.5588
+    max: 0.0686
+  yaw_range: 6.0701
+  angular_energy: 0.3733
+  peak_angular_velocity: 6.371
+FrontJump:
+  api_id: 1031
+  duration: 4.02
+  num_frames: 85
+  fps: 21.1
+  body_height:
+    min: 0.117
+    max: 0.3336
+    mean: 0.2627
+  velocity_x:
+    min: -0.1359
+    max: 1.5347
+  velocity_y:
+    min: -0.017
+    max: 0.1333
+  roll:
+    min: -0.0241
+    max: 0.011
+  pitch:
+    min: -0.0959
+    max: 0.1009
+  yaw_range: 0.0446
+  angular_energy: 0.1262
+  peak_angular_velocity: 3.7638
+FrontPounce:
+  api_id: 1032
+  duration: 3.95
+  num_frames: 80
+  fps: 20.3
+  body_height:
+    min: 0.1829
+    max: 0.3847
+    mean: 0.2832
+  velocity_x:
+    min: -0.6262
+    max: 1.0056
+  velocity_y:
+    min: -0.1025
+    max: 0.1699
+  roll:
+    min: -0.012
+    max: 0.0127
+  pitch:
+    min: -0.8947
+    max: 0.1352
+  yaw_range: 0.0285
+  angular_energy: 0.3449
+  peak_angular_velocity: 4.895
+FingerHeart:
+  api_id: 1036
+  duration: 6.94
+  num_frames: 140
+  fps: 20.2
+  body_height:
+    min: 0.1564
+    max: 0.3477
+    mean: 0.2681
+  velocity_x:
+    min: -0.4415
+    max: 0.5871
+  velocity_y:
+    min: -0.0797
+    max: 0.272
+  roll:
+    min: -0.0203
+    max: 3.1412
+  pitch:
+    min: -1.5596
+    max: 0.0818
+  yaw_range: 3.3567
+  angular_energy: 0.4027
+  peak_angular_velocity: 6.6183
+StandDown:
+  api_id: 1005
+  duration: 7.55
+  num_frames: 152
+  fps: 20.1
+  body_height:
+    min: 0.0675
+    max: 0.312
+    mean: 0.1566
+  velocity_x:
+    min: -0.1173
+    max: 0.1458
+  velocity_y:
+    min: -0.0084
+    max: 0.0926
+  roll:
+    min: -0.0094
+    max: 0.0071
+  pitch:
+    min: -0.1206
+    max: -0.0036
+  yaw_range: 0.0249
+  angular_energy: 0.0504
+  peak_angular_velocity: 0.4622
