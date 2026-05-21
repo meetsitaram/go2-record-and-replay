@@ -33,6 +33,7 @@ from go2_driver.gamepad import (
     ControllerState, find_gamepad, validate_gamepad, gamepad_loop, RumbleHelper
 )
 from go2_driver.constants import KEY_UP, KEY_DOWN, KEY_LEFT, KEY_RIGHT
+from go2_driver.streams import RobotStreams
 
 # Local imports: algo move catalogue + scaling helpers.
 _HERE = Path(__file__).resolve().parent
@@ -40,6 +41,7 @@ sys.path.insert(0, str(_HERE.parent / "src"))
 from go2_recorder.algo_moves_lib import (  # noqa: E402
     CATALOGUE_BY_NAME, Move, clamp_params,
 )
+from go2_recorder.show_logger import ShowLogger  # noqa: E402
 
 SEND_RATE = 1.0 / 20  # 20Hz
 
@@ -872,7 +874,9 @@ async def run_algo_step(step: AlgoStep, players: list,
                     very next frame will overwrite the pose anyway.
     """
     transition = "seamless" if not prep_mode else (
-        "Start (walking)" if step.move.requires_walking else "Select (standing)"
+        "Start (walking) + RecoveryStand"
+        if step.move.requires_walking
+        else "Select (standing) + RecoveryStand"
     )
     sys.stdout.write(
         f"\n  [step {step_idx}/{total_steps}] algo {step.move.name} "
@@ -890,7 +894,24 @@ async def run_algo_step(step: AlgoStep, players: list,
     # transitions: the previous step already put the robot in the right
     # mode, so the very next frame can drop straight into the new motion.
     if prep_mode:
-        await _broadcast_mode_press(players, walking=step.move.requires_walking)
+        # Defensive trip-recovery: fire RecoveryStand on every live, non-
+        # overridden robot. RecoveryStand (api 1006) animates a stand-up
+        # only if the robot has actually fallen; on an upright robot it's
+        # a no-op. Done CONCURRENTLY with the controller-mode press so it
+        # adds zero wall-clock time to this branch -- both the recovery
+        # request and the Select/Start press complete inside the existing
+        # ~600ms window. Seamless algo->algo (prep_mode=False) paths are
+        # untouched and remain gap-free.
+        recovery_targets = [pl for pl in players
+                            if pl.is_alive() and not pl.manual_override]
+        recovery_task = asyncio.gather(*[
+            pl.send_sport(SPORT_CMD["RecoveryStand"])
+            for pl in recovery_targets
+        ])
+        await asyncio.gather(
+            recovery_task,
+            _broadcast_mode_press(players, walking=step.move.requires_walking),
+        )
         await asyncio.sleep(0.4)
 
     ctx = {"beat_hz": 1.0 * step.tempo, "beat_phase": 0.0}
@@ -1013,8 +1034,16 @@ async def run_action_step(step: ActionStep, players: list,
 
 # ─── Main show orchestrator ──────────────────────────────────────────────
 
-async def run_show(config: dict, no_music: bool = False, audio_head_start: float = 0.5):
-    """Main show loop: connect once, run each step in sequence on all robots."""
+async def run_show(config: dict, no_music: bool = False, audio_head_start: float = 0.5,
+                    show_log_path: str | None = "",
+                    show_log_rate: float = 5.0):
+    """Main show loop: connect once, run each step in sequence on all robots.
+
+    show_log_path semantics:
+      - None      -> logging disabled
+      - ""        -> logging enabled, auto-generated filename under data/showlogs/
+      - <path>    -> logging enabled, write to the given path
+    """
     robots_cfg = config["robots"]
     song_path = config.get("song")
 
@@ -1046,6 +1075,31 @@ async def run_show(config: dict, no_music: bool = False, audio_head_start: float
     if not connected_players:
         print("ERROR: No robots connected!")
         return
+
+    # Telemetry logger: subscribe each robot's WebRTC streams (sportmode +
+    # lowstate) and write a JSONL trace to data/showlogs/. Default-on so we
+    # always have an artefact when something looks wrong on the floor.
+    show_logger: ShowLogger | None = None
+    robot_streams: list[RobotStreams] = []
+    if show_log_path is not None:
+        try:
+            show_logger = ShowLogger.create(
+                path=(show_log_path or None),
+                rate_hz=show_log_rate,
+            )
+            print(f"\n  Show log: {show_logger.path}  ({show_log_rate:g} Hz)")
+            for p in connected_players:
+                # Camera/lidar are off: we want pose + lowstate only, cheap.
+                streams = RobotStreams(
+                    enable_camera=False, enable_lidar=False, enable_voxel=False,
+                )
+                streams.attach(p.conn)
+                robot_streams.append(streams)
+                show_logger.attach(p, streams)
+        except Exception as exc:
+            print(f"\n  WARN: show log setup failed ({type(exc).__name__}: {exc}); "
+                  f"continuing without telemetry log")
+            show_logger = None
 
     # 4. Set the starting posture (from the FIRST step only, which is the
     # entry into the show -- subsequent steps handle their own mode prep).
@@ -1139,7 +1193,12 @@ async def run_show(config: dict, no_music: bool = False, audio_head_start: float
     t_step_offset = 0.0
     aborted = False
 
+    if show_logger is not None:
+        show_logger.start(t_show_start=t_show_start)
+
     for i, step in enumerate(steps, 1):
+        if show_logger is not None:
+            show_logger.note_step(i, len(steps), step)
         # Look at neighbours to decide whether this step can transition
         # seamlessly from the previous one / into the next one.
         prev = steps[i - 2] if i > 1 else None
@@ -1188,20 +1247,34 @@ async def run_show(config: dict, no_music: bool = False, audio_head_start: float
     elapsed = time.monotonic() - t_show_start
     if aborted:
         print(f"\n\n  Show aborted after {elapsed:.1f}s.")
+        if show_logger is not None:
+            show_logger.note_event("show_aborted", elapsed_s=round(elapsed, 3))
     else:
         print(f"\n\n  Show complete in {elapsed:.1f}s.")
+        if show_logger is not None:
+            show_logger.note_event("show_complete", elapsed_s=round(elapsed, 3))
     print("  D-pad still active for repositioning. Ctrl+C to exit.")
 
     if audio is not None:
         audio.shutdown()
 
     # 10. Post-show positioning loop: keep D-pad active until Ctrl+C.
-    prev_dpad = 0
-    while True:
-        if gamepad_active:
-            prev_dpad = _handle_dpad(connected_players, prev_dpad, gamepad_state)
-            _send_takeover_frame(connected_players, gamepad_state, gamepad_active)
-        await asyncio.sleep(SEND_RATE)
+    # Wrap in try/finally so the JSONL log is flushed/closed cleanly even
+    # when the operator hits Ctrl+C (the most common exit path here).
+    try:
+        prev_dpad = 0
+        while True:
+            if gamepad_active:
+                prev_dpad = _handle_dpad(connected_players, prev_dpad, gamepad_state)
+                _send_takeover_frame(connected_players, gamepad_state, gamepad_active)
+            await asyncio.sleep(SEND_RATE)
+    finally:
+        if show_logger is not None:
+            try:
+                show_logger.note_event("ctrl_c_or_exit")
+                await show_logger.aclose()
+            except Exception:
+                pass
 
 
 async def main():
@@ -1210,10 +1283,22 @@ async def main():
     parser.add_argument("--no-music", action="store_true", help="Skip music playback")
     parser.add_argument("--audio-head-start", type=float, default=0.5,
                        help="Seconds to let audio play before moves start")
+    parser.add_argument("--no-show-log", action="store_true",
+                       help="Disable per-show telemetry log (default: log to data/showlogs/show_<timestamp>.jsonl)")
+    parser.add_argument("--show-log",
+                       help="Override path for the show log file (implies enabled)")
+    parser.add_argument("--show-log-rate", type=float, default=5.0,
+                       help="Show log sampling rate in Hz (default: 5)")
     args = parser.parse_args()
 
     config = load_show_config(args.config)
-    await run_show(config, no_music=args.no_music, audio_head_start=args.audio_head_start)
+    await run_show(
+        config,
+        no_music=args.no_music,
+        audio_head_start=args.audio_head_start,
+        show_log_path=(None if args.no_show_log else (args.show_log or "")),
+        show_log_rate=args.show_log_rate,
+    )
 
 
 if __name__ == "__main__":
