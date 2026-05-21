@@ -1,0 +1,19 @@
+# Test sequence — 4 moves x 8 seconds each.
+# Use with: scripts/play_sequence.py --sequence config/test_sequence.yaml
+moves:
+  - name: headbang
+    duration: 8
+    tempo: 0.5
+    amplitude: 1.0
+  - name: roll_double_headbang
+    duration: 10
+    tempo: 2.0
+    amplitude: 2.0
+  - name: head_swivel
+    duration: 10
+    tempo: 1.0
+    amplitude: 1.5
+  - name: head_swivel_nod_sync
+    duration: 10
+    tempo: 2.0
+    amplitude: 2.0

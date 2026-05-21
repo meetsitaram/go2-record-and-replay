@@ -50,8 +50,10 @@ def parse_args() -> argparse.Namespace:
                    help="Skip the hold-to-confirm countdown (use with --allow-all)")
     p.add_argument("--speed-limit", type=float, default=0.5, metavar="0.0-1.0",
                    help="Cap joystick output (default: 0.5 = half speed)")
-    p.add_argument("--auto-record", action="store_true",
-                   help="Start recording immediately without waiting for F1")
+    p.add_argument("--auto-record", action="store_true", default=True,
+                   help="(default) Start recording immediately on connect")
+    p.add_argument("--manual-record", dest="auto_record", action="store_false",
+                   help="Wait for F1 press to start recording (legacy)")
 
     p.add_argument("--repo-id", default="go2-teleop",
                    help="LeRobot dataset repo ID (default: go2-teleop)")
@@ -151,6 +153,13 @@ def send_and_record_loop(
 
         # Send to robot
         if not args.dry_run and conn_wrapper and conn_wrapper.conn:
+            if not conn_wrapper.is_alive():
+                sys.stdout.write(
+                    "\n  ERROR: WebRTC connection lost. Stopping.\n"
+                )
+                sys.stdout.flush()
+                stop_event.set()
+                break
             try:
                 msg = json.dumps({
                     "type": "msg",
@@ -162,8 +171,8 @@ def send_and_record_loop(
                 )
                 sent += 1
             except Exception as e:
-                if sent == 0:
-                    sys.stdout.write(f"\n  Send failed: {e}\n")
+                sys.stdout.write(f"\n  Send failed: {e}\n")
+                sys.stdout.flush()
 
         # Record frame
         if recording and recorder:
