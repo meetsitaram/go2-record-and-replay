@@ -854,26 +854,44 @@ async def run_algo_step(step: AlgoStep, players: list,
                          gamepad_state, gamepad_active: bool,
                          step_idx: int, total_steps: int,
                          t_offset: float, t_start_show: float,
-                         audio: "AudioPlayer | None" = None):
+                         audio: "AudioPlayer | None" = None,
+                         prep_mode: bool = True,
+                         settle_after: bool = True):
     """Play one algorithmic move on every robot in lock-step.
 
     Each tick we evaluate move.frame(t, ctx), scale by amplitude, clamp, and
     broadcast as a sport request to every (live, non-overridden) robot.
+
+    prep_mode    -- if False, skip the Select/Start press + 400ms settle.
+                    Use when the previous step already left the robot in
+                    the correct gait mode (e.g. consecutive Euler-only
+                    algo steps). Saves ~550ms of dead air per transition.
+    settle_after -- if False, skip the zero-Euler "leak-prevention" send
+                    at the end of the step. Use when the next step is
+                    another algo with the same requires_walking, so the
+                    very next frame will overwrite the pose anyway.
     """
+    transition = "seamless" if not prep_mode else (
+        "Start (walking)" if step.move.requires_walking else "Select (standing)"
+    )
     sys.stdout.write(
         f"\n  [step {step_idx}/{total_steps}] algo {step.move.name} "
         f"({step.duration:.1f}s, tempo x{step.tempo:.2f} amp x{step.amplitude:.2f}, "
         f"requires_walking={step.move.requires_walking}) -- "
-        f"pressing {'Start' if step.move.requires_walking else 'Select'} for mode\n"
+        f"mode: {transition}\n"
     )
     sys.stdout.flush()
     # Apply per-step audio directive before mode prep so they overlap in
     # time (mode prep is ~400ms which roughly matches audio head_start).
     if audio is not None:
         await audio.apply_step(step)
-    # Switch mode (Select for pose / Start for walking) for all robots.
-    await _broadcast_mode_press(players, walking=step.move.requires_walking)
-    await asyncio.sleep(0.4)
+    # Switch mode (Select for pose / Start for walking) for all robots --
+    # but only when needed. Skipping this is the key to seamless algo->algo
+    # transitions: the previous step already put the robot in the right
+    # mode, so the very next frame can drop straight into the new motion.
+    if prep_mode:
+        await _broadcast_mode_press(players, walking=step.move.requires_walking)
+        await asyncio.sleep(0.4)
 
     ctx = {"beat_hz": 1.0 * step.tempo, "beat_phase": 0.0}
     num_frames = step.num_frames
@@ -923,10 +941,13 @@ async def run_algo_step(step: AlgoStep, players: list,
             await asyncio.sleep(sleep_for)
 
     # Zero out Euler/BodyHeight/Move so we don't leak pose state into the
-    # next step. Recording steps will overwrite immediately anyway, but
-    # algo->algo or algo->end-of-show needs this.
-    await _broadcast_sport_cmd(live, {"type": "euler",
-                                       "params": {"x": 0.0, "y": 0.0, "z": 0.0}})
+    # next step. Recording steps will overwrite immediately anyway. For
+    # consecutive algo steps in the same mode we skip this (settle_after=
+    # False) so the new move can drive straight in without a 50ms blip
+    # of "flat pose".
+    if settle_after:
+        await _broadcast_sport_cmd(live, {"type": "euler",
+                                           "params": {"x": 0.0, "y": 0.0, "z": 0.0}})
     return True
 
 
@@ -1119,15 +1140,36 @@ async def run_show(config: dict, no_music: bool = False, audio_head_start: float
     aborted = False
 
     for i, step in enumerate(steps, 1):
+        # Look at neighbours to decide whether this step can transition
+        # seamlessly from the previous one / into the next one.
+        prev = steps[i - 2] if i > 1 else None
+        nxt = steps[i] if i < len(steps) else None
+
         if isinstance(step, RecordingStep):
             ok = await run_recording_step(
                 step, connected_players, gamepad_state, gamepad_active,
                 i, len(steps), t_step_offset, t_show_start, audio=audio,
             )
         elif isinstance(step, AlgoStep):
+            # prep_mode: skip the Select/Start press + 400ms settle when the
+            # previous step is another AlgoStep with the same gait
+            # requirement. Recording/Action steps leave the robot in an
+            # unknown mode (recordings can change mode mid-clip), so any
+            # non-algo predecessor forces a fresh prep.
+            prep_mode = not (
+                isinstance(prev, AlgoStep)
+                and prev.move.requires_walking == step.move.requires_walking
+            )
+            # settle_after: skip the zero-Euler send when the next step is
+            # another same-mode AlgoStep that will overwrite immediately.
+            settle_after = not (
+                isinstance(nxt, AlgoStep)
+                and nxt.move.requires_walking == step.move.requires_walking
+            )
             ok = await run_algo_step(
                 step, connected_players, gamepad_state, gamepad_active,
                 i, len(steps), t_step_offset, t_show_start, audio=audio,
+                prep_mode=prep_mode, settle_after=settle_after,
             )
         elif isinstance(step, ActionStep):
             ok = await run_action_step(
