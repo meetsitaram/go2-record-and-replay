@@ -1,3 +1,12 @@
+
+### play birthday song
+play_birthday_song.sh 
+
+### inspect logs
+cd /home/thor/projects/go-explore/go2-record-and-replay
+.venv/bin/python scripts/inspect_show_log.py --latest
+
+
 cd /home/thor/projects/go-explore/go2-record-and-replay && ffplay -nodisp -autoexit assets/Dog-song.m4a 2>/dev/null & .venv/bin/python -u scripts/record.py --mode sta --ip 192.168.1.246 --aes-key 2c09e23856fa423ed680313dd939a3f0 --allow-all --no-camera --auto-record --speed-limit 1.0 2>&1
 
 
