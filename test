@@ -1,0 +1,6 @@
+8 seconds headbang   --tempo 0.5 --amplitude 1.0 
+8 seconds roll_double_headbang   --tempo 2.0 --amplitude 2.0
+8 seconds head_swivel   --tempo 1.0 --amplitude 1.5
+8 seconds head_swivel_nod_sync   --tempo 2.0 --amplitude 2.0
+
+disco_bounce
