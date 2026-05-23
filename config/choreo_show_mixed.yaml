@@ -1,0 +1,53 @@
+# Mixed-step choreography: all robots play the same shared script.
+# Steps can be either algo moves or recorded teleop episodes.
+# Switch back-and-forth freely; mode prep (Select/Start press) happens
+# automatically between adjacent steps that need different gaits.
+
+song: ../assets/first-song.m4a
+audio_head_start: 0.5
+
+# Shared script (runs on every robot in robots: below).
+script:
+  - type: algo
+    name: deep_shoulder_roll
+    duration: 8
+    tempo: 1.0
+    amplitude: 1.0
+
+  - type: algo
+    name: roll_double_headbang
+    duration: 10
+    tempo: 1.0
+    amplitude: 1.0
+
+  - type: recording
+    dataset: data/dance-song-1/data/chunk-000
+    episode: 3
+
+  - type: algo
+    name: head_swivel_nod_sync
+    duration: 6
+    tempo: 1.0
+    amplitude: 1.0
+
+  - type: algo
+    name: shakira_combo
+    duration: 8
+    tempo: 1.2
+    amplitude: 1.0
+
+robots:
+  - name: pro1
+    ip: 192.168.1.246
+    aes_key: 2c09e23856fa423ed680313dd939a3f0
+    pro: true
+
+  # Uncomment / add more robots as available. All play the same script.
+  # - name: pro2
+  #   ip: 192.168.1.248
+  #   aes_key: 8c95a9d3b98fbb6d00860fbe61404cce
+  #   pro: true
+
+  # - name: air1
+  #   ip: 192.168.1.133
+  #   pro: false

@@ -1,0 +1,4 @@
+# Favorite algorithmic moves saved from scripts/algo_moves.py.
+# Each entry references a move from src/go2_recorder/algo_moves_lib.py
+# (CATALOGUE) and may add custom duration / notes.
+moves: []

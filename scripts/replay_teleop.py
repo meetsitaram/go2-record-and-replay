@@ -127,18 +127,20 @@ class PositionHold:
         return lx_corr, ly_corr, rx_corr
 
 
-async def replay_with_music(conn, actions, buttons, state, play_music=True,
+async def replay_with_music(go2, actions, buttons, state, play_music=True,
                             song_path=None, audio_delay=0.5, position_hold=True,
-                            start_posture="standing"):
-    """Replay recorded actions at 20Hz with music."""
+                            start_posture="standing", speed=1.0):
+    """Replay recorded actions at 20Hz * speed with music."""
+    conn = go2.conn
     if song_path is None:
         song_path = SONG_PATH
     num_frames = len(actions)
-    duration = num_frames * SEND_RATE
+    send_interval = SEND_RATE / speed  # at 2x => 25ms instead of 50ms
+    duration = num_frames * send_interval
 
     hold = PositionHold(state, enabled=position_hold)
 
-    print(f"\n  Replaying {num_frames} frames ({duration:.1f}s)")
+    print(f"\n  Replaying {num_frames} frames ({duration:.1f}s) at {speed:.2f}x speed")
     print(f"  Song: {song_path}")
     print(f"  Audio head start: {audio_delay:.2f}s")
     print(f"  Position hold (handstand/erect): {'ON' if position_hold else 'OFF'}")
@@ -164,9 +166,22 @@ async def replay_with_music(conn, actions, buttons, state, play_music=True,
     # Start music first - Bluetooth audio has ~200ms latency plus ffplay startup
     audio_proc = None
     if play_music and song_path.exists():
+        cmd = ["ffplay", "-nodisp", "-autoexit"]
+        if abs(speed - 1.0) > 1e-3:
+            # atempo allows 0.5..2.0; chain filters for wider range
+            tempo = speed
+            filters = []
+            while tempo > 2.0:
+                filters.append("atempo=2.0")
+                tempo /= 2.0
+            while tempo < 0.5:
+                filters.append("atempo=0.5")
+                tempo /= 0.5
+            filters.append(f"atempo={tempo:.4f}")
+            cmd += ["-af", ",".join(filters)]
+        cmd.append(str(song_path))
         audio_proc = subprocess.Popen(
-            ["ffplay", "-nodisp", "-autoexit", str(song_path)],
-            stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL
+            cmd, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL
         )
         # Wait for audio pipeline to fill (BT latency + ffplay decode buffer)
         await asyncio.sleep(audio_delay)
@@ -176,7 +191,32 @@ async def replay_with_music(conn, actions, buttons, state, play_music=True,
     # Replay log: capture commands sent + live robot state
     replay_log = []
 
+    # Disconnect detection: on_close (passive) + is_alive (active per-frame)
+    disconnect_event = asyncio.Event()
+
+    def _on_disconnect(state: str):
+        sys.stdout.write(
+            f"\n  ERROR: WebRTC connection {state}. Stopping replay.\n"
+        )
+        sys.stdout.flush()
+        try:
+            disconnect_event.set()
+        except Exception:
+            pass
+
+    go2.on_close(_on_disconnect)
+
+    send_errors = 0
+
     for i in range(num_frames):
+        if disconnect_event.is_set() or not go2.is_alive():
+            sys.stdout.write(
+                f"\n  Connection lost at frame {i}/{num_frames} ({i/num_frames*100:.1f}%). "
+                "Aborting replay.\n"
+            )
+            sys.stdout.flush()
+            break
+
         lx, ly, rx, ry = actions[i].tolist()
         keys = int(buttons[i, 0]) if buttons.ndim > 1 else int(buttons[i])
 
@@ -195,8 +235,13 @@ async def replay_with_music(conn, actions, buttons, state, play_music=True,
 
         try:
             conn.datachannel.channel.send(msg)
-        except Exception:
-            pass
+        except Exception as e:
+            send_errors += 1
+            if send_errors <= 3 or send_errors % 50 == 0:
+                sys.stdout.write(
+                    f"\n  WARN: send failed at frame {i} ({type(e).__name__}: {e})\n"
+                )
+                sys.stdout.flush()
 
         # Log frame
         elapsed = time.monotonic() - t_start
@@ -223,8 +268,8 @@ async def replay_with_music(conn, actions, buttons, state, play_music=True,
             )
             sys.stdout.flush()
 
-        # Maintain 20Hz timing
-        expected_time = (i + 1) * SEND_RATE
+        # Maintain timing scaled by speed (20Hz * speed)
+        expected_time = (i + 1) * send_interval
         elapsed = time.monotonic() - t_start
         sleep_time = expected_time - elapsed
         if sleep_time > 0:
@@ -255,7 +300,16 @@ async def main():
     parser.add_argument("--no-hold", action="store_true", help="Disable position hold during handstand/erect")
     parser.add_argument("--audio-head-start", type=float, default=0.5,
                        help="Seconds to let audio play before starting moves (compensates BT latency, increase if audio still lags)")
+    parser.add_argument("--speed", type=float, default=1.0,
+                       help="Playback speed multiplier (e.g. 2.0 = twice as fast). "
+                            "Scales both the controller send rate and audio tempo (pitch preserved).")
     args = parser.parse_args()
+
+    if args.speed <= 0:
+        print("ERROR: --speed must be > 0")
+        sys.exit(1)
+    if args.speed > 4.0:
+        print(f"WARN: --speed {args.speed} is aggressive; the robot may not keep up.")
 
     # Load recording
     dataset_path = Path(args.dataset) if args.dataset else DATASET_PATH
@@ -294,12 +348,13 @@ async def main():
 
     await asyncio.sleep(1)  # let state populate
 
-    await replay_with_music(conn, actions, buttons, state,
+    await replay_with_music(go2, actions, buttons, state,
                             play_music=not args.no_music,
                             song_path=Path(args.song) if args.song else SONG_PATH,
                             audio_delay=args.audio_head_start,
                             position_hold=not args.no_hold,
-                            start_posture=start_posture)
+                            start_posture=start_posture,
+                            speed=args.speed)
 
     await go2.async_disconnect()
 

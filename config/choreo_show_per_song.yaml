@@ -1,0 +1,117 @@
+# Per-step song with "sticky" semantics:
+#   - song:          start a new song (interrupts any current song)
+#   - song_start:    offset into the file in seconds (default 0). Only used
+#                    when `song:` is also set in the same step.
+#   - song: null     stop the current song (go silent)
+#   - field omitted  current song keeps playing (or silence if there is none)
+#
+# Audio transitions: hard cut at boundaries when the song actually changes.
+# Global audio_head_start applies to every song launch (compensates BT latency).
+
+audio_head_start: 4
+
+# Top-level song: starts at show start. Per-step `song:` fields below override
+# this when the step is reached; otherwise the previous song keeps playing.
+song: ../assets/Dog-song.m4a
+
+script:
+  - type: recording
+    dataset: choreo_episodes/dance-song-1
+    episode: 3
+
+  - type: algo
+    name: slow_bob
+    duration: 3
+
+  - type: algo
+    name: headbang
+    duration: 8
+    tempo: 0.5
+    amplitude: 1.0
+
+  - type: algo
+    name: roll_double_headbang
+    duration: 8
+    tempo: 2.0
+    amplitude: 2.0
+
+  - type: algo
+    name: head_swivel
+    duration: 10
+    amplitude: 1.5     # tempo omitted = default 1.0
+
+  - type: algo
+    name: head_swivel_nod_sync
+    duration: 10
+    tempo: 2.0
+    amplitude: 2.0
+
+  - type: recording
+    dataset: choreo_episodes/dance-song-2
+    episode: 3
+
+  - type: action
+    name: Stretch
+    duration: 5      # let the stretch play out before the next step
+
+  - type: algo
+    name: shakira_combo
+    duration: 8
+
+  - type: recording
+    dataset: choreo_episodes/dance-song-third
+    song: ../assets/third-song.m4a
+    episode: 0
+    song_start: 0
+
+  - type: recording
+    dataset: choreo_episodes/dance-song-4
+    song: ../assets/fourth-song.m4a
+    episode: 1
+    song_start: 0
+
+
+robots:
+  # Order here = D-pad mapping.
+  #   index 0 -> D-pad Up
+  #   index 1 -> D-pad Down
+  #   index 2 -> D-pad Left
+  #   index 3 -> D-pad Right
+  #
+  # Naming: go2_<serial>_<model><n> where the serial matches the sticker
+  # on the robot (so logs like "[go2_50224_pro2] FAILED" point at a
+  # specific physical unit on the floor).
+
+  # - name: go2_50905_pro1                                # D-pad Up
+  #   ip: 192.168.1.246
+  #   aes_key: 2c09e23856fa423ed680313dd939a3f0
+  #   pro: true
+
+  # - name: go2_50224_pro2                                # D-pad Down
+  #   ip: 192.168.1.250
+  #   aes_key: 8c95a9d3b98fbb6d00860fbe61404cce
+  #   pro: true
+
+  # - name: go2_55149_air1                                # D-pad Left
+  #   ip: 192.168.1.133
+  #   # Air does not need AES key; pro: false is the default.
+
+  # - name: go2_52076_air2                                # D-pad Right
+  #   ip: 192.168.1.245
+
+  - name: go2_50905_pro1                                # D-pad Up
+    ip: 192.168.86.23
+    aes_key: 2c09e23856fa423ed680313dd939a3f0
+    pro: true
+
+  - name: go2_50224_pro2                                # D-pad Down
+    ip: 192.168.86.29
+    aes_key: 8c95a9d3b98fbb6d00860fbe61404cce
+    pro: true
+
+  - name: go2_55149_air1                                # D-pad Left
+    ip: 192.168.86.26
+    # Air does not need AES key; pro: false is the default.
+
+  - name: go2_52076_air2                                # D-pad Right
+    ip: 192.168.86.31

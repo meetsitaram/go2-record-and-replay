@@ -64,15 +64,157 @@ WebRTC messages — these columns will be zero. EDU models provide all fields.*
 
 ## Setup
 
+This project depends on the sibling repo [`go2-driver`](https://github.com/meetsitaram/go2-driver),
+which is referenced as a path-dependency (`../go2-driver`) — **not** a git submodule.
+You clone the two repos as siblings under one parent directory:
+
+```
+go-explore/                  ← any parent dir name is fine
+├── go2-driver/              ← shared driver (gamepad, WebRTC, streams)
+└── go2-record-and-replay/   ← this repo
+```
+
+### 1. Prerequisites
+
+#### Common (all platforms)
+
+- **Python 3.12** — required (CUDA wheels on Jetson are cp312 only; LeRobot also
+  pins newer ranges; older Pythons will resolve incorrectly).
+- **[uv](https://docs.astral.sh/uv/)** — the package manager this project uses.
+  ```bash
+  curl -LsSf https://astral.sh/uv/install.sh | sh
+  ```
+- **git** and **ffmpeg** — used at runtime for music playback (`ffplay`) and the
+  visualizer's video encoder (`ffmpeg`).
+- An **Xbox-compatible USB or Bluetooth gamepad** for teleop / takeover. The
+  driver uses Linux's `evdev`, so on macOS the gamepad path is read-only and you
+  cannot record (replay/choreo still works, just no joystick input).
+
+#### Ubuntu / Debian (Jetson, x86_64, etc.)
+
+```bash
+sudo apt update
+sudo apt install -y python3.12 python3.12-venv git ffmpeg \
+                    libevdev-dev libudev-dev pkg-config build-essential
+
+# Optional (only if you want to AirPlay music to a Sonos / Apple TV during shows)
+sudo apt install -y avahi-daemon avahi-utils pipewire pipewire-pulse wireplumber
+
+# Optional but useful for development debugging
+sudo apt install -y arp-scan iputils-ping
+```
+
+> **Gamepad permissions on Linux:** to read `/dev/input/event*` without `sudo`,
+> add yourself to the `input` group once: `sudo usermod -aG input $USER`,
+> then log out/in.
+
+#### macOS (Apple Silicon or Intel)
+
+```bash
+# Homebrew (skip if already installed)
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+
+brew install python@3.12 git ffmpeg uv
+```
+
+> **macOS limitations:**
+> - `evdev` is Linux-only. The `record.py` script will fail at gamepad init on Mac.
+> - `replay.py`, `replay_teleop.py`, `choreo_multi.py` work fine on Mac for replay
+>   and visualization (no gamepad input needed if you let the show run unattended,
+>   or use D-pad-only via `pygame` if you swap the gamepad backend).
+> - For development on Mac, the typical workflow is: develop and visualize on Mac,
+>   record/replay on a Linux host (the Jetson, an x86 laptop, or a Pi).
+
+#### Jetson Thor / NVIDIA Jetson
+
+This project runs on JetPack 7 (CUDA 13 / aarch64-sbsa). The dependencies above
+are enough for the choreo runner; if you also want the LeRobot training side
+(GPU PyTorch), the project ships a `[[tool.uv.index]]` entry pointing at
+`https://pypi.jetson-ai-lab.io/sbsa/cu130/+simple/` so `uv sync` resolves the
+correct CUDA wheels automatically. Set
+`TRITON_PTXAS_PATH=/usr/local/cuda/bin/ptxas` if you run vLLM-adjacent code.
+
+### 2. Clone
+
+```bash
+mkdir -p ~/projects/go-explore && cd ~/projects/go-explore
+git clone https://github.com/meetsitaram/go2-driver.git
+git clone https://github.com/meetsitaram/go2-record-and-replay.git
+```
+
+The two repos must end up as siblings; otherwise the `path = "../go2-driver"`
+reference in `pyproject.toml` won't resolve.
+
+### 3. Create the venv and install
+
+The fastest path is the bundled bootstrap script, which handles steps 1–3
+above plus the venv, dependency install, and (on Linux) the `input`-group
+setup:
+
+```bash
+cd go2-record-and-replay
+./install.sh
+```
+
+Pass `--no-system` to skip apt/brew, `--no-clone` if `../go2-driver` is
+already in place, or `--no-input` to skip touching group membership.
+
+If you'd rather do it manually:
+
 ```bash
 cd go2-record-and-replay
 uv venv --python 3.12
-uv pip install -e .
+uv sync
 ```
 
-> **Note:** If `opencv-python-headless` gets installed (pulled by lerobot), remove it
-> so the GUI-capable `opencv-python` is used instead:
-> `uv pip uninstall opencv-python-headless`
+`uv sync` installs both this package and `go2-driver` (in editable mode) plus
+all dependencies. The first run takes a few minutes (it pulls LeRobot, PyArrow,
+etc.).
+
+> **Note on opencv:** if `opencv-python-headless` ends up installed (LeRobot
+> sometimes pulls it transitively), uninstall it so the GUI-capable
+> `opencv-python` from `go2-driver` is used:
+> ```bash
+> uv pip uninstall opencv-python-headless
+> ```
+
+### 4. Verify the install
+
+```bash
+.venv/bin/python -c "from go2_driver.gamepad import find_gamepad; print('driver OK')"
+.venv/bin/python -c "import lerobot, pandas, numpy; print('deps OK')"
+.venv/bin/python scripts/record.py --dry-run    # prints gamepad menu, no robot needed
+```
+
+If `find_gamepad()` returns `None` on Linux, your user probably isn't in the
+`input` group yet (see prerequisites above) or the controller isn't paired.
+
+### 5. (Optional) AirPlay music output to a Sonos / Apple TV
+
+If you want the show's music to play through a Sonos speaker (Beam Gen 2,
+Arc, etc.) on the network rather than the local sound card, enable PipeWire's
+RAOP discovery once:
+
+```bash
+mkdir -p ~/.config/pipewire/pipewire.conf.d
+cat > ~/.config/pipewire/pipewire.conf.d/30-raop-discover.conf <<'EOF'
+context.modules = [
+    { name = libpipewire-module-raop-discover
+      args = { raop.latency.ms = 1000 } }
+]
+EOF
+systemctl --user restart pipewire pipewire-pulse wireplumber
+```
+
+Confirm the speaker shows up in the sink list (`wpctl status`) and select it
+as default with `wpctl set-default <id>`. The choreo runner then plays music
+through whatever the system default sink is.
+
+### 6. (Optional) Robot AES key
+
+Go2 robots running firmware ≥ 1.1.15 require a per-device AES-128 key for the
+LAN WebRTC handshake. See [Robot encryption key setup](#robot-encryption-key-setup)
+below for how to fetch it. Older robots don't need a key.
 
 ## Quick start
 
@@ -295,16 +437,34 @@ robots:
 
 **Show flow:**
 1. Connects all robots, sets starting postures
-2. D-pad active for pre-show positioning
+2. D-pad / R3 active for pre-show positioning
 3. Press ENTER to start music + dance
-4. D-pad takeover during show (exclusive single-robot control)
+4. Live takeover during show (D-pad single-robot, R3 all-robots)
 5. After show ends, D-pad remains active for repositioning
 6. Ctrl+C to exit
 
-**D-pad mapping:**
-- Up = robot 1, Down = robot 2, Left = robot 3, Right = robot 4
-- First press = take manual control, second press = release back to dance
+**Takeover controls:**
+- **D-pad Up/Down/Left/Right** — exclusive single-robot takeover (robots 1–4).
+  First press grabs, second press releases.
+- **R3 (right stick click)** — toggle ALL robots into MANUAL together. The
+  same stick input is broadcast to every robot in lock-step (useful for line
+  formations, simultaneous walks). Press again to release everyone.
+- **Sticks** — drive whichever robot(s) are currently in MANUAL.
+- **Rumble feedback:** single pulse = release, double = grab one robot,
+  triple = grab all robots.
 
 **Pro/Air handling:**
 - Air robots automatically substitute Pro-only moves (double-click R2 = Erect)
   with sit/stand transitions to stay in sync.
+
+**Show telemetry log:**
+Every show writes a JSONL trace to `data/showlogs/show_<YYYYmmdd-HHMMSS>.jsonl`
+(default-on, 5 Hz). Inspect the latest run with:
+
+```bash
+.venv/bin/python scripts/inspect_show_log.py --latest
+```
+
+The log captures pose, foot-force, tilt warnings, motor temps, send errors,
+and step boundaries — useful for diagnosing trips or disconnects after the
+fact. Disable with `--no-show-log` if needed.
