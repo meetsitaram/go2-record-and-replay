@@ -147,6 +147,20 @@ reference in `pyproject.toml` won't resolve.
 
 ### 3. Create the venv and install
 
+The fastest path is the bundled bootstrap script, which handles steps 1–3
+above plus the venv, dependency install, and (on Linux) the `input`-group
+setup:
+
+```bash
+cd go2-record-and-replay
+./install.sh
+```
+
+Pass `--no-system` to skip apt/brew, `--no-clone` if `../go2-driver` is
+already in place, or `--no-input` to skip touching group membership.
+
+If you'd rather do it manually:
+
 ```bash
 cd go2-record-and-replay
 uv venv --python 3.12
