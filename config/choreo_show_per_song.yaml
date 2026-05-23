@@ -81,19 +81,37 @@ robots:
   # Naming: go2_<serial>_<model><n> where the serial matches the sticker
   # on the robot (so logs like "[go2_50224_pro2] FAILED" point at a
   # specific physical unit on the floor).
+
+  # - name: go2_50905_pro1                                # D-pad Up
+  #   ip: 192.168.1.246
+  #   aes_key: 2c09e23856fa423ed680313dd939a3f0
+  #   pro: true
+
+  # - name: go2_50224_pro2                                # D-pad Down
+  #   ip: 192.168.1.250
+  #   aes_key: 8c95a9d3b98fbb6d00860fbe61404cce
+  #   pro: true
+
+  # - name: go2_55149_air1                                # D-pad Left
+  #   ip: 192.168.1.133
+  #   # Air does not need AES key; pro: false is the default.
+
+  # - name: go2_52076_air2                                # D-pad Right
+  #   ip: 192.168.1.245
+
   - name: go2_50905_pro1                                # D-pad Up
-    ip: 192.168.1.246
+    ip: 192.168.86.23
     aes_key: 2c09e23856fa423ed680313dd939a3f0
     pro: true
 
   - name: go2_50224_pro2                                # D-pad Down
-    ip: 192.168.1.250
+    ip: 192.168.86.29
     aes_key: 8c95a9d3b98fbb6d00860fbe61404cce
     pro: true
 
   - name: go2_55149_air1                                # D-pad Left
-    ip: 192.168.1.133
+    ip: 192.168.86.26
     # Air does not need AES key; pro: false is the default.
 
   - name: go2_52076_air2                                # D-pad Right
-    ip: 192.168.1.245
+    ip: 192.168.86.31

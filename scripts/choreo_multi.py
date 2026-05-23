@@ -3,8 +3,12 @@
 Multi-robot choreography with live controller takeover.
 
 Replays recorded episodes on multiple robots simultaneously. During playback,
-the operator can use the D-pad to take manual control of any robot:
-  - D-pad Up/Down/Left/Right = select robot 1/2/3/4
+the operator can use the D-pad or R3 (right-stick click) to take manual
+control of any robot or all robots:
+  - D-pad Up/Down/Left/Right = select robot 1/2/3/4 (exclusive single-robot)
+  - R3 (right stick click)   = toggle ALL robots into MANUAL together;
+                               the same stick input is broadcast to every
+                               robot (useful for line formations / entrances)
   - First press: take manual control (robot pauses its dance)
   - Second press: release back to dance (resumes from current position in timeline)
 
@@ -32,7 +36,7 @@ from go2_driver.connection import Go2Connection
 from go2_driver.gamepad import (
     ControllerState, find_gamepad, validate_gamepad, gamepad_loop, RumbleHelper
 )
-from go2_driver.constants import KEY_UP, KEY_DOWN, KEY_LEFT, KEY_RIGHT
+from go2_driver.constants import KEY_UP, KEY_DOWN, KEY_LEFT, KEY_RIGHT, KEY_F2
 from go2_driver.streams import RobotStreams
 
 # Local imports: algo move catalogue + scaling helpers.
@@ -679,6 +683,26 @@ def _rumble_double_pulse(rumble: "RumbleHelper | None"):
     threading.Thread(target=_runner, daemon=True).start()
 
 
+def _rumble_triple_pulse(rumble: "RumbleHelper | None"):
+    """Fire three pulses for the "all-robots grab" haptic.
+
+    Distinct from the double-pulse (single-robot grab) so the operator
+    can feel the difference between "I just grabbed one robot" and "I
+    just grabbed every robot at once".
+    """
+    if rumble is None:
+        return
+
+    def _runner():
+        rumble.pulse()
+        time.sleep(_DOUBLE_PULSE_GAP)
+        rumble.pulse()
+        time.sleep(_DOUBLE_PULSE_GAP)
+        rumble.pulse()
+
+    threading.Thread(target=_runner, daemon=True).start()
+
+
 def _handle_dpad(connected_players, prev_dpad, gamepad_state,
                   rumble: "RumbleHelper | None" = None):
     """Handle D-pad input: exclusive single-robot takeover. Returns new mask.
@@ -727,12 +751,74 @@ def _handle_dpad(connected_players, prev_dpad, gamepad_state,
     return current_keys & (KEY_UP | KEY_DOWN | KEY_LEFT | KEY_RIGHT)
 
 
+def _handle_all_takeover(connected_players, gamepad_state,
+                          rumble: "RumbleHelper | None" = None):
+    """Handle R3 (right stick click) -> exclusive ALL-robots takeover toggle.
+
+    Edge-detected on rising R3. Two-state toggle:
+      - All AUTO -> All MANUAL (any partial D-pad-MANUAL state is escalated;
+        every connected, alive robot enters MANUAL). Triple-pulse rumble for
+        a louder confirmation than the single-robot grab.
+      - All MANUAL -> All AUTO (every robot released).
+
+    The same gamepad stick is broadcast to every MANUAL robot by
+    _send_takeover_frame, which is unchanged: it already iterates over all
+    players with manual_override=True. So pressing the stick forward while
+    in this mode walks every robot forward in lock-step.
+
+    Edge state is stashed on the function itself so call sites don't have
+    to thread another mask parameter through every step runner.
+    """
+    rumble = rumble if rumble is not None else _RUMBLE
+    keys_now = gamepad_state.to_dict()["keys"]
+    r3_now = bool(keys_now & KEY_F2)
+    r3_prev = bool(getattr(_handle_all_takeover, "_prev", False))
+    _handle_all_takeover._prev = r3_now  # type: ignore[attr-defined]
+
+    if r3_now and not r3_prev:
+        live = [p for p in connected_players if p.is_alive()]
+        if not live:
+            return
+        any_manual = any(p.manual_override for p in live)
+        all_manual = all(p.manual_override for p in live)
+
+        if all_manual:
+            # Release everyone. Single pulse "letting go".
+            for p in live:
+                p.manual_override = False
+            sys.stdout.write("\n  [ALL] -> AUTO  |  All on AUTO\n")
+            sys.stdout.flush()
+            if rumble is not None:
+                rumble.pulse()
+        else:
+            # Escalate: every alive robot under MANUAL, even ones that were
+            # already on D-pad-MANUAL. Triple pulse so the operator feels
+            # the difference vs. single-robot grab (double pulse).
+            for p in live:
+                p.manual_override = True
+            note = " (escalated from partial)" if any_manual else ""
+            sys.stdout.write(
+                f"\n  [ALL] -> MANUAL (broadcasting sticks){note}  |  "
+                f"Active: {', '.join(p.name for p in live)}\n"
+            )
+            sys.stdout.flush()
+            _rumble_triple_pulse(rumble)
+
+
 def _send_takeover_frame(players, gamepad_state, gamepad_active):
-    """Send live gamepad state to any robot under manual override."""
+    """Send live gamepad state to any robot under manual override.
+
+    The D-pad direction bits and the R3 (right-stick-click) bit are stripped
+    before broadcasting -- these are operator-only meta keys for the choreo
+    runner and must NOT be echoed to the robot firmware (where R3 is
+    unmapped and the D-pad is "stair mode").
+    """
     if not gamepad_active:
         return
     gstate = gamepad_state.to_dict()
-    gstate["keys"] = gstate["keys"] & ~(KEY_UP | KEY_DOWN | KEY_LEFT | KEY_RIGHT)
+    gstate["keys"] = gstate["keys"] & ~(
+        KEY_UP | KEY_DOWN | KEY_LEFT | KEY_RIGHT | KEY_F2
+    )
     for p in players:
         if p.manual_override and p.is_alive():
             p.send(gstate)
@@ -796,6 +882,7 @@ async def run_recording_step(step: RecordingStep, players: list,
     for frame_i in range(num_frames):
         if gamepad_active:
             prev_dpad = _handle_dpad(players, prev_dpad, gamepad_state)
+            _handle_all_takeover(players, gamepad_state)
 
         live = [p for p in players if p.is_alive()]
         if not live:
@@ -922,6 +1009,7 @@ async def run_algo_step(step: AlgoStep, players: list,
     for frame_i in range(num_frames):
         if gamepad_active:
             prev_dpad = _handle_dpad(players, prev_dpad, gamepad_state)
+            _handle_all_takeover(players, gamepad_state)
 
         live = [p for p in players if p.is_alive()]
         if not live:
@@ -1026,6 +1114,7 @@ async def run_action_step(step: ActionStep, players: list,
                 return False
             if gamepad_active:
                 prev_dpad = _handle_dpad(players, prev_dpad, gamepad_state)
+                _handle_all_takeover(players, gamepad_state)
                 _send_takeover_frame(players, gamepad_state, gamepad_active)
             await asyncio.sleep(min(SEND_RATE, t_end - time.monotonic()))
 
@@ -1150,12 +1239,13 @@ async def run_show(config: dict, no_music: bool = False, audio_head_start: float
     for i, p in enumerate(connected_players[:4]):
         dirs = ["Up", "Down", "Left", "Right"]
         print(f"    D-pad {dirs[i]:<5} -> takeover/release {p.name}")
-    print("    Sticks       -> teleop the robot currently under takeover")
+    print("    R3 (R-stick click) -> takeover/release ALL robots (broadcast sticks)")
+    print("    Sticks       -> teleop the robot(s) currently under takeover")
     print("    Ctrl+C       -> exit (script keeps D-pad alive until you Ctrl+C)")
     print("=" * 60)
 
     # 7. Pre-show positioning loop: D-pad takeover active, waiting for ENTER.
-    print("\n  D-pad active for positioning. Press ENTER to start the show...")
+    print("\n  D-pad / R3 active for positioning. Press ENTER to start the show...")
     enter_pressed = asyncio.Event()
 
     def _wait_enter():
@@ -1168,6 +1258,7 @@ async def run_show(config: dict, no_music: bool = False, audio_head_start: float
     while not enter_pressed.is_set():
         if gamepad_active:
             prev_dpad = _handle_dpad(connected_players, prev_dpad, gamepad_state)
+            _handle_all_takeover(connected_players, gamepad_state)
             _send_takeover_frame(connected_players, gamepad_state, gamepad_active)
         await asyncio.sleep(SEND_RATE)
 
@@ -1266,6 +1357,7 @@ async def run_show(config: dict, no_music: bool = False, audio_head_start: float
         while True:
             if gamepad_active:
                 prev_dpad = _handle_dpad(connected_players, prev_dpad, gamepad_state)
+                _handle_all_takeover(connected_players, gamepad_state)
                 _send_takeover_frame(connected_players, gamepad_state, gamepad_active)
             await asyncio.sleep(SEND_RATE)
     finally:
